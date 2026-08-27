@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="brand_indigo">#FF3730A3</color>
+    <color name="brand_indigo_light">#FF6366F1</color>
+    <color name="brand_teal">#FF14B8A6</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>

@@ -1,0 +1,462 @@
+[
+  {
+    "name": "Arrays & Strings",
+    "category": "Foundational",
+    "explanation": "Think of an array as a row of numbered boxes sitting right next to each other in memory. Because they're numbered, you can jump straight to any box instantly — that's what makes arrays fast to read from. A string is just an array of characters. Almost every interview problem starts here, so getting comfortable scanning through arrays is step one.",
+    "diagramType": "array",
+    "timeComplexity": "O(1) access, O(n) search",
+    "spaceComplexity": "O(n)",
+    "difficultyLevel": "Easy",
+    "companyTags": "Google,Amazon,Microsoft,Meta"
+  },
+  {
+    "name": "Two Pointers",
+    "category": "Foundational",
+    "explanation": "Instead of one finger scanning through an array, you use two — maybe one at each end moving toward the middle, or one chasing the other. This lets you solve problems in a single pass instead of checking every possible pair, which is why it turns slow O(n²) solutions into fast O(n) ones.",
+    "diagramType": "array",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)",
+    "difficultyLevel": "Easy",
+    "companyTags": "Amazon,Google,Meta"
+  },
+  {
+    "name": "Sliding Window",
+    "category": "Foundational",
+    "explanation": "Picture a window frame sliding across an array, always covering a chunk of it. As it moves one step, you don't recheck everything inside — you just add the new element entering and remove the one leaving. Great for 'longest/shortest stretch that satisfies some condition' type problems.",
+    "diagramType": "array",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) to O(k)",
+    "difficultyLevel": "Medium",
+    "companyTags": "Amazon,Microsoft,Google"
+  },
+  {
+    "name": "Hashing / HashMaps",
+    "category": "Foundational",
+    "explanation": "A hashmap is like a locker room where every item gets assigned a locker number based on a formula (the hash function), so you can walk straight to it instead of searching row by row. This is why lookups, insertions, and deletions are all roughly instant on average — it's one of the most useful tools for turning slow brute-force checks into fast ones.",
+    "diagramType": "none",
+    "timeComplexity": "O(1) average, O(n) worst case",
+    "spaceComplexity": "O(n)",
+    "difficultyLevel": "Easy",
+    "companyTags": "Google,Amazon,Meta,Microsoft"
+  },
+  {
+    "name": "Sorting Algorithms",
+    "category": "Foundational",
+    "explanation": "Sorting just means putting things in order, but different sorting methods make different tradeoffs — some use less memory, some are more predictable, some work better on nearly-sorted data. In interviews, you rarely write a sort from scratch; the real skill is spotting when sorting the data first makes the rest of the problem much easier.",
+    "diagramType": "array",
+    "timeComplexity": "O(n log n) typical",
+    "spaceComplexity": "O(1) to O(n) depending on algorithm",
+    "difficultyLevel": "Medium",
+    "companyTags": "Microsoft,Amazon,Adobe"
+  },
+  {
+    "name": "Binary Search & Variants",
+    "category": "Foundational",
+    "explanation": "If a list is sorted, you don't need to check every item to find something — you can check the middle, figure out which half your target must be in, and throw away the other half. Repeat that a few times and you've searched thousands of items in barely any steps. It also works for more than just 'find this exact value' — it's great for 'find the smallest value that satisfies X' problems too.",
+    "diagramType": "binarysearch",
+    "timeComplexity": "O(log n)",
+    "spaceComplexity": "O(1) iterative, O(log n) recursive",
+    "difficultyLevel": "Medium",
+    "companyTags": "Google,Amazon,Adobe"
+  },
+  {
+    "name": "Bit Manipulation",
+    "category": "Foundational",
+    "explanation": "Every number is secretly a row of 0s and 1s under the hood, and you can work with those bits directly using AND, OR, XOR, and shifts. This unlocks neat tricks — like finding the one number that appears an odd number of times in a list, using barely any extra memory.",
+    "diagramType": "none",
+    "timeComplexity": "O(1) to O(log n)",
+    "spaceComplexity": "O(1)",
+    "difficultyLevel": "Medium",
+    "companyTags": "Google,Microsoft"
+  },
+  {
+    "name": "Linked List",
+    "category": "Linear Structures",
+    "explanation": "Instead of sitting in numbered boxes side by side like an array, each item here just knows where the next item is — like a treasure hunt where each clue points to the next location. This makes inserting or removing something in the middle really cheap, but you lose the ability to jump straight to a random item; you have to walk from the start.",
+    "diagramType": "linkedlist",
+    "timeComplexity": "O(n) search, O(1) insert/delete at known node",
+    "spaceComplexity": "O(n)",
+    "difficultyLevel": "Easy",
+    "companyTags": "Amazon,Microsoft,Apple"
+  },
+  {
+    "name": "Stack",
+    "category": "Linear Structures",
+    "explanation": "Imagine a stack of plates — you can only add or remove from the top. That's a stack: last one in is the first one out. It's the natural tool for anything involving 'undo,' matching up brackets/parentheses, or backtracking through steps you've taken.",
+    "diagramType": "stack",
+    "timeComplexity": "O(1) push/pop",
+    "spaceComplexity": "O(n)",
+    "difficultyLevel": "Easy",
+    "companyTags": "Amazon,Google,Microsoft"
+  },
+  {
+    "name": "Queue & Deque",
+    "category": "Linear Structures",
+    "explanation": "Like a line at a coffee shop — first person in line is the first one served. A deque is a more flexible version where you can join or leave from either end. Queues are what BFS traversal and task scheduling are built on.",
+    "diagramType": "queue",
+    "timeComplexity": "O(1) enqueue/dequeue",
+    "spaceComplexity": "O(n)",
+    "difficultyLevel": "Easy",
+    "companyTags": "Amazon,Microsoft"
+  },
+  {
+    "name": "Monotonic Stack / Queue",
+    "category": "Linear Structures",
+    "explanation": "A stack or queue that kicks out anything that breaks a rule — say, 'must always be increasing' — right before adding something new. It sounds fussy, but this small trick solves 'find the next bigger number' style problems in one clean pass instead of comparing every pair.",
+    "diagramType": "stack",
+    "timeComplexity": "O(n) amortized",
+    "spaceComplexity": "O(n)",
+    "difficultyLevel": "Hard",
+    "companyTags": "Google,Amazon"
+  },
+  {
+    "name": "Trees (Binary Tree, BST)",
+    "category": "Non-Linear Structures",
+    "explanation": "A tree is like a family tree — one root at the top, branching down into children. A Binary Search Tree keeps everything organized: smaller values go left, bigger values go right, so finding anything is fast if the tree stays balanced. There are a few standard ways to walk through a tree (top-down, bottom-up, level-by-level), and knowing them cold makes most tree problems much easier.",
+    "diagramType": "tree",
+    "timeComplexity": "O(log n) balanced, O(n) worst case",
+    "spaceComplexity": "O(n)",
+    "difficultyLevel": "Medium",
+    "companyTags": "Google,Amazon,Microsoft,Meta"
+  },
+  {
+    "name": "Heaps / Priority Queue",
+    "category": "Non-Linear Structures",
+    "explanation": "A heap always keeps the smallest (or largest) item easy to grab, even as you keep adding and removing things. Think of it as a to-do list that automatically bubbles the most urgent task to the top. It's what powers 'top K' problems and is the engine behind Dijkstra's shortest-path algorithm.",
+    "diagramType": "heap",
+    "timeComplexity": "O(log n) insert/remove, O(1) peek",
+    "spaceComplexity": "O(n)",
+    "difficultyLevel": "Medium",
+    "companyTags": "Amazon,Google,Microsoft"
+  },
+  {
+    "name": "Tries",
+    "category": "Non-Linear Structures",
+    "explanation": "A trie is a tree built specifically for words, where each step down spells out one more letter. Multiple words that start the same way share the same path, which is exactly why autocomplete and spell-check can suggest matches so fast — they're just walking down shared branches.",
+    "diagramType": "trie",
+    "timeComplexity": "O(L) per operation, L = word length",
+    "spaceComplexity": "O(total characters stored)",
+    "difficultyLevel": "Medium",
+    "companyTags": "Google,Amazon"
+  },
+  {
+    "name": "Graphs (BFS/DFS, Weighted)",
+    "category": "Non-Linear Structures",
+    "explanation": "A graph is just dots (nodes) connected by lines (edges) — think friend networks, road maps, or flight routes. BFS spreads outward one 'ring' at a time (great for shortest paths when every edge costs the same), while DFS dives as deep as possible before backing up (great for exploring every possible path or detecting loops). Almost any 'how are these things connected' problem is secretly a graph problem.",
+    "diagramType": "graph",
+    "timeComplexity": "O(V + E)",
+    "spaceComplexity": "O(V + E)",
+    "difficultyLevel": "Hard",
+    "companyTags": "Google,Amazon,Meta,Microsoft"
+  },
+  {
+    "name": "Union-Find / DSU",
+    "category": "Non-Linear Structures",
+    "explanation": "A tool for tracking groups of things that are connected, answering 'are these two in the same group?' and 'merge these two groups' almost instantly. Super handy for detecting cycles in a graph or building a minimum spanning tree without extra bookkeeping.",
+    "diagramType": "graph",
+    "timeComplexity": "O(α(n)) ≈ O(1) amortized",
+    "spaceComplexity": "O(n)",
+    "difficultyLevel": "Hard",
+    "companyTags": "Google,Amazon"
+  },
+  {
+    "name": "Segment Trees & Fenwick Trees",
+    "category": "Non-Linear Structures",
+    "explanation": "These structures let you answer 'what's the sum/min/max of this range?' and update individual values quickly, even as the array keeps changing. Without them, every range query means re-scanning a chunk of the array — with them, both queries and updates stay fast no matter how big the array gets.",
+    "diagramType": "tree",
+    "timeComplexity": "O(log n) query/update",
+    "spaceComplexity": "O(n)",
+    "difficultyLevel": "Hard",
+    "companyTags": "Google,Amazon"
+  },
+  {
+    "name": "Recursion & Backtracking",
+    "category": "Algorithm Patterns",
+    "explanation": "Recursion means solving a problem by having a function call a smaller version of itself, until it hits a case simple enough to answer directly. Backtracking builds on this — try a choice, keep going, and if it turns out to be a dead end, undo it and try the next option. This is how you generate all permutations, combinations, or solve puzzles like Sudoku and N-Queens.",
+    "diagramType": "tree",
+    "timeComplexity": "Often exponential, problem-dependent",
+    "spaceComplexity": "O(depth) for call stack",
+    "difficultyLevel": "Medium",
+    "companyTags": "Google,Amazon,Microsoft"
+  },
+  {
+    "name": "Greedy",
+    "category": "Algorithm Patterns",
+    "explanation": "A greedy approach just grabs the best-looking option at each step and never looks back, hoping those local wins add up to the best overall answer. It doesn't work for every problem, but when it does — like scheduling the most non-overlapping meetings — it's usually the simplest, fastest solution available.",
+    "diagramType": "none",
+    "timeComplexity": "O(n log n) typical (often needs sorting first)",
+    "spaceComplexity": "O(1) to O(n)",
+    "difficultyLevel": "Medium",
+    "companyTags": "Amazon,Google"
+  },
+  {
+    "name": "Dynamic Programming (1D)",
+    "category": "Algorithm Patterns",
+    "explanation": "Dynamic programming means solving a big problem by solving smaller versions of it first and remembering the answers, instead of recalculating them over and over. The '1D' part just means you only need to track one running piece of information as you go — like 'how many ways can I climb these stairs' where each step only depends on the couple of steps before it.",
+    "diagramType": "none",
+    "timeComplexity": "O(n) typical",
+    "spaceComplexity": "O(n), often optimizable to O(1)",
+    "difficultyLevel": "Medium",
+    "companyTags": "Google,Amazon,Meta,Microsoft"
+  },
+  {
+    "name": "Dynamic Programming (2D)",
+    "category": "Algorithm Patterns",
+    "explanation": "Same idea as 1D dynamic programming, but now you're tracking two things at once — like your position in a grid, or how far you've gotten through two different strings at the same time. Problems like 'edit distance between two words' or 'paths through a grid' need this extra dimension to keep track of state.",
+    "diagramType": "array",
+    "timeComplexity": "O(n·m)",
+    "spaceComplexity": "O(n·m), often optimizable to O(m)",
+    "difficultyLevel": "Hard",
+    "companyTags": "Google,Amazon,Microsoft"
+  },
+  {
+    "name": "Knapsack Family",
+    "category": "Algorithm Patterns",
+    "explanation": "Imagine packing a bag with a weight limit, trying to fit in the most valuable combination of items. That's the knapsack problem. '0/1' means each item can only be used once; 'unbounded' means you can grab as many copies as you want. This pattern quietly shows up in a huge number of 'pick a subset to maximize something' problems.",
+    "diagramType": "none",
+    "timeComplexity": "O(n·capacity)",
+    "spaceComplexity": "O(capacity)",
+    "difficultyLevel": "Hard",
+    "companyTags": "Amazon,Google"
+  },
+  {
+    "name": "LIS Family",
+    "category": "Algorithm Patterns",
+    "explanation": "Longest Increasing Subsequence asks: what's the longest run of numbers you can pick out (in order, but not necessarily next to each other) where each one is bigger than the last? The straightforward solution checks every pair, but a clever trick using binary search speeds it up dramatically.",
+    "diagramType": "array",
+    "timeComplexity": "O(n²) DP, O(n log n) optimized",
+    "spaceComplexity": "O(n)",
+    "difficultyLevel": "Hard",
+    "companyTags": "Google,Microsoft"
+  },
+  {
+    "name": "String DP",
+    "category": "Algorithm Patterns",
+    "explanation": "Dynamic programming problems where the 'state' you're tracking is a position within one or two strings — like figuring out the fewest edits to turn one word into another, or finding the longest palindrome hiding inside a string. You'll almost always end up filling in a grid where rows and columns represent positions in each string.",
+    "diagramType": "array",
+    "timeComplexity": "O(n·m)",
+    "spaceComplexity": "O(n·m)",
+    "difficultyLevel": "Hard",
+    "companyTags": "Google,Amazon,Meta"
+  },
+  {
+    "name": "Bitmask DP",
+    "category": "Algorithm Patterns",
+    "explanation": "Uses a number's bits as a compact way to represent 'which items have I already used or visited' — bit 3 being 1 might mean 'city 3 has been visited,' for example. This lets you track an entire subset of choices in a single integer, which is exactly how the classic Traveling Salesman problem gets solved for small inputs.",
+    "diagramType": "none",
+    "timeComplexity": "O(2ⁿ · n)",
+    "spaceComplexity": "O(2ⁿ)",
+    "difficultyLevel": "Hard",
+    "companyTags": "Google"
+  },
+  {
+    "name": "DP on Trees",
+    "category": "Algorithm Patterns",
+    "explanation": "Dynamic programming, but the 'smaller subproblems' are a node's children in a tree instead of earlier array positions. You solve the leaves first, then work your way up, combining children's answers into their parent's answer — useful for things like 'find the maximum path sum through this tree.'",
+    "diagramType": "tree",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n) for recursion stack",
+    "difficultyLevel": "Hard",
+    "companyTags": "Google,Amazon"
+  },
+  {
+    "name": "Divide & Conquer",
+    "category": "Algorithm Patterns",
+    "explanation": "Break a big problem into smaller independent pieces, solve each piece on its own (often by recursing), then stitch the results back together. Merge sort is the textbook example: split the array in half, sort each half, then merge the two sorted halves into one.",
+    "diagramType": "tree",
+    "timeComplexity": "O(n log n) typical",
+    "spaceComplexity": "O(log n) to O(n)",
+    "difficultyLevel": "Medium",
+    "companyTags": "Google,Microsoft"
+  },
+  {
+    "name": "Topological Sort",
+    "category": "Algorithm Patterns",
+    "explanation": "Puts tasks in a valid order when some tasks depend on others being done first — like figuring out what order to take college courses in when some are prerequisites for others. Only works on graphs with no circular dependencies, since a cycle would mean 'you must finish this before starting it,' which is impossible.",
+    "diagramType": "graph",
+    "timeComplexity": "O(V + E)",
+    "spaceComplexity": "O(V)",
+    "difficultyLevel": "Hard",
+    "companyTags": "Amazon,Google,Microsoft"
+  },
+  {
+    "name": "Shortest Path (Dijkstra, Bellman-Ford, Floyd-Warshall)",
+    "category": "Algorithm Patterns",
+    "explanation": "These are three different tools for finding the cheapest route between points on a graph, like a GPS finding the fastest route. Dijkstra is the go-to when all costs are positive. Bellman-Ford is slower but still works if some costs are negative. Floyd-Warshall finds the shortest path between every pair of points at once, useful when you need the full picture rather than just one route.",
+    "diagramType": "graph",
+    "timeComplexity": "O((V+E) log V) Dijkstra, O(V·E) Bellman-Ford, O(V³) Floyd-Warshall",
+    "spaceComplexity": "O(V²) typical",
+    "difficultyLevel": "Hard",
+    "companyTags": "Google,Amazon,Uber"
+  },
+  {
+    "name": "MST (Kruskal, Prim)",
+    "category": "Algorithm Patterns",
+    "explanation": "Imagine you need to connect a set of cities with roads, using as little total road length as possible — that's a Minimum Spanning Tree. Kruskal's builds it by always adding the cheapest road that doesn't create a loop; Prim's grows one connected network outward, always adding the cheapest next connection.",
+    "diagramType": "graph",
+    "timeComplexity": "O(E log E) Kruskal, O(E log V) Prim",
+    "spaceComplexity": "O(V + E)",
+    "difficultyLevel": "Hard",
+    "companyTags": "Google,Amazon"
+  },
+  {
+    "name": "Prefix Sum & Difference Arrays",
+    "category": "Arrays & Matrix Patterns",
+    "explanation": "If you precompute the running total up to each position in an array, you can answer 'what's the sum between these two points?' instantly instead of adding it up every time. Difference arrays flip this trick around, letting you apply the same update to an entire range in one quick step.",
+    "diagramType": "array",
+    "timeComplexity": "O(1) query after O(n) preprocessing",
+    "spaceComplexity": "O(n)",
+    "difficultyLevel": "Medium",
+    "companyTags": "Amazon,Google"
+  },
+  {
+    "name": "Matrix Traversal (Spiral, Rotate, Search)",
+    "category": "Arrays & Matrix Patterns",
+    "explanation": "Covers the common ways of moving through a 2D grid — spiraling around the outside inward, rotating the whole grid in place, or searching a grid where each row and column is sorted. These problems are less about clever algorithms and more about carefully tracking your row/column indices without making an off-by-one mistake.",
+    "diagramType": "array",
+    "timeComplexity": "O(rows × cols)",
+    "spaceComplexity": "O(1) in-place typical",
+    "difficultyLevel": "Medium",
+    "companyTags": "Amazon,Microsoft,Google"
+  },
+  {
+    "name": "Intervals (Merge/Insert/Overlap)",
+    "category": "Arrays & Matrix Patterns",
+    "explanation": "Problems about ranges — like meeting times — where you need to merge overlapping ones, insert a new one, or count how many overlap at once. The trick that unlocks almost all of these: sort the ranges by their start time first, then walk through them once.",
+    "diagramType": "array",
+    "timeComplexity": "O(n log n) (sorting dominates)",
+    "spaceComplexity": "O(n)",
+    "difficultyLevel": "Medium",
+    "companyTags": "Google,Amazon,Meta"
+  },
+  {
+    "name": "Kadane's Algorithm (Max Subarray Family)",
+    "category": "Arrays & Matrix Patterns",
+    "explanation": "Finds the best-scoring stretch of consecutive numbers in an array. The trick: keep a running total, and the moment it dips below zero, just restart it from the next number — since a negative running total can only drag down whatever comes after it. One pass, no nested loops needed.",
+    "diagramType": "array",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)",
+    "difficultyLevel": "Medium",
+    "companyTags": "Amazon,Microsoft,Google"
+  },
+  {
+    "name": "Pattern Matching (KMP, Rabin-Karp)",
+    "category": "String Algorithms",
+    "explanation": "Both algorithms answer 'does this smaller pattern appear inside this bigger string?' faster than checking every position one by one. KMP is smart about not re-checking characters it's already matched. Rabin-Karp instead turns chunks of the string into numbers (a hash) and compares those numbers, which is quick to compute and compare.",
+    "diagramType": "array",
+    "timeComplexity": "O(n + m)",
+    "spaceComplexity": "O(m)",
+    "difficultyLevel": "Hard",
+    "companyTags": "Google,Amazon"
+  },
+  {
+    "name": "Palindrome Techniques (Manacher's)",
+    "category": "String Algorithms",
+    "explanation": "A palindrome reads the same forwards and backwards. The simple way to find the longest one in a string is to expand outward from every possible center — works, but can be slow. Manacher's algorithm is a cleverer version that reuses information from palindromes it's already found, making it much faster.",
+    "diagramType": "array",
+    "timeComplexity": "O(n) Manacher's, O(n²) expand-around-center",
+    "spaceComplexity": "O(n)",
+    "difficultyLevel": "Hard",
+    "companyTags": "Google,Microsoft"
+  },
+  {
+    "name": "Anagram / Frequency-Map Patterns",
+    "category": "String Algorithms",
+    "explanation": "Two words are anagrams if they use exactly the same letters, just rearranged. Instead of sorting both words to compare them, just count how many times each letter appears in each — if the counts match, so do the words. Faster, and it's a pattern that shows up any time you're comparing the 'makeup' of two collections.",
+    "diagramType": "none",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(26) or O(unique chars)",
+    "difficultyLevel": "Easy",
+    "companyTags": "Amazon,Meta,Microsoft"
+  },
+  {
+    "name": "GCD / LCM",
+    "category": "Math for DSA",
+    "explanation": "GCD (Greatest Common Divisor) is the biggest number that divides evenly into two numbers; LCM (Least Common Multiple) is the smallest number both divide into evenly. A neat old trick called the Euclidean algorithm finds GCD in just a few steps using remainders, and LCM is a simple formula away once you have GCD.",
+    "diagramType": "none",
+    "timeComplexity": "O(log(min(a,b)))",
+    "spaceComplexity": "O(1)",
+    "difficultyLevel": "Easy",
+    "companyTags": "Amazon,Google"
+  },
+  {
+    "name": "Sieve of Eratosthenes",
+    "category": "Math for DSA",
+    "explanation": "A fast way to find every prime number up to some limit. Instead of checking each number one at a time, you cross out all the multiples of 2, then all multiples of 3, and so on — whatever's left uncrossed is prime. Much quicker than testing each number individually when you need a whole list of primes.",
+    "diagramType": "array",
+    "timeComplexity": "O(n log log n)",
+    "spaceComplexity": "O(n)",
+    "difficultyLevel": "Medium",
+    "companyTags": "Google,Amazon"
+  },
+  {
+    "name": "Modular Arithmetic",
+    "category": "Math for DSA",
+    "explanation": "'Modulo' just means 'the remainder after dividing.' This matters in coding because numbers can get so huge they overflow what a computer can store — modular arithmetic lets you keep numbers small and manageable throughout a calculation without changing the final answer (as long as you apply the rules correctly).",
+    "diagramType": "none",
+    "timeComplexity": "O(log n) for fast exponentiation",
+    "spaceComplexity": "O(1)",
+    "difficultyLevel": "Medium",
+    "companyTags": "Google,Amazon"
+  },
+  {
+    "name": "Combinatorics Basics",
+    "category": "Math for DSA",
+    "explanation": "The math of counting — how many ways can you arrange things (permutations), or how many ways can you choose a group from a set (combinations)? These formulas quietly show up inside probability questions and 'how many paths' problems, so having them memorized saves real time in an interview.",
+    "diagramType": "none",
+    "timeComplexity": "O(n) to precompute factorials",
+    "spaceComplexity": "O(n)",
+    "difficultyLevel": "Medium",
+    "companyTags": "Google,Amazon"
+  },
+  {
+    "name": "Design: LRU Cache",
+    "category": "Design-Style Questions",
+    "explanation": "A cache that only keeps a limited number of items, and when it's full, kicks out whatever hasn't been used in the longest time — that's 'Least Recently Used.' It's built from a hashmap (for instant lookup) paired with a doubly linked list (to instantly move an item to the 'most recently used' spot). One of the most commonly asked design questions anywhere.",
+    "diagramType": "linkedlist",
+    "timeComplexity": "O(1) get/put",
+    "spaceComplexity": "O(capacity)",
+    "difficultyLevel": "Hard",
+    "companyTags": "Amazon,Google,Microsoft,Meta"
+  },
+  {
+    "name": "Design: LFU Cache",
+    "category": "Design-Style Questions",
+    "explanation": "Similar idea to an LRU cache, but instead of evicting the item used longest ago, it evicts the item used the fewest times overall (ties broken by recency). This means tracking both 'how often' and 'how recently' at the same time — usually done with frequency groups, each holding its own ordered list.",
+    "diagramType": "linkedlist",
+    "timeComplexity": "O(1) get/put",
+    "spaceComplexity": "O(capacity)",
+    "difficultyLevel": "Hard",
+    "companyTags": "Amazon,Google"
+  },
+  {
+    "name": "Design: Rate Limiter",
+    "category": "Design-Style Questions",
+    "explanation": "Limits how many requests someone can make in a given time window — like 'max 100 requests per minute.' There are a few common ways to build this: keep a log of recent request times, hand out a limited number of 'tokens' that refill over time, or just count requests in fixed time buckets. Each has different tradeoffs in memory use and fairness.",
+    "diagramType": "queue",
+    "timeComplexity": "O(1) to O(log n) per request depending on approach",
+    "spaceComplexity": "O(requests in window)",
+    "difficultyLevel": "Hard",
+    "companyTags": "Amazon,Google,Uber"
+  },
+  {
+    "name": "Design: Trie-Based Autocomplete",
+    "category": "Design-Style Questions",
+    "explanation": "Builds on the trie structure by also storing how popular or frequent each word is at the point where it ends. That way, when someone types a prefix, you're not just finding matching words — you're finding and ranking the best matching words, fast.",
+    "diagramType": "trie",
+    "timeComplexity": "O(L + K log K) per query",
+    "spaceComplexity": "O(total characters stored)",
+    "difficultyLevel": "Hard",
+    "companyTags": "Google,Amazon"
+  },
+  {
+    "name": "Design: Min-Stack",
+    "category": "Design-Style Questions",
+    "explanation": "A regular stack, but it can also tell you the minimum value currently in it instantly, without searching. The trick: keep a second, quiet stack running alongside the main one that always tracks the current minimum as things are pushed and popped.",
+    "diagramType": "stack",
+    "timeComplexity": "O(1) all operations",
+    "spaceComplexity": "O(n)",
+    "difficultyLevel": "Medium",
+    "companyTags": "Amazon,Microsoft,Google"
+  }
+]
