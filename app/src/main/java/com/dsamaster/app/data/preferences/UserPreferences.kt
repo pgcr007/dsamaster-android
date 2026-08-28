@@ -33,6 +33,13 @@ class UserPreferences(private val context: Context) {
         const val THEME_MODE_LIGHT = "LIGHT"
         const val THEME_MODE_DARK = "DARK"
         const val DEFAULT_THEME_MODE = THEME_MODE_SYSTEM
+
+        private val HAS_SEEN_ONBOARDING_KEY = booleanPreferencesKey("has_seen_onboarding")
+        const val DEFAULT_HAS_SEEN_ONBOARDING = false
+
+        private val AUTH_TOKEN_KEY = stringPreferencesKey("auth_token")
+        private val USER_EMAIL_KEY = stringPreferencesKey("user_email")
+        private val USER_NAME_KEY = stringPreferencesKey("user_name")
     }
 
     val dailyGoal: Flow<Int> = context.dataStore.data.map { prefs ->
@@ -87,6 +94,44 @@ class UserPreferences(private val context: Context) {
     suspend fun setThemeMode(mode: String) {
         context.dataStore.edit { prefs ->
             prefs[THEME_MODE_KEY] = mode
+        }
+    }
+
+    val hasSeenOnboarding: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[HAS_SEEN_ONBOARDING_KEY] ?: DEFAULT_HAS_SEEN_ONBOARDING
+    }
+
+    suspend fun setHasSeenOnboarding(seen: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[HAS_SEEN_ONBOARDING_KEY] = seen
+        }
+    }
+
+    val authToken: Flow<String?> = context.dataStore.data.map { prefs ->
+        prefs[AUTH_TOKEN_KEY]
+    }
+
+    val userEmail: Flow<String> = context.dataStore.data.map { prefs ->
+        prefs[USER_EMAIL_KEY] ?: ""
+    }
+
+    val userName: Flow<String> = context.dataStore.data.map { prefs ->
+        prefs[USER_NAME_KEY] ?: ""
+    }
+
+    suspend fun setAuthSession(token: String, email: String, name: String) {
+        context.dataStore.edit { prefs ->
+            prefs[AUTH_TOKEN_KEY] = token
+            prefs[USER_EMAIL_KEY] = email
+            prefs[USER_NAME_KEY] = name
+        }
+    }
+
+    suspend fun clearAuthSession() {
+        context.dataStore.edit { prefs ->
+            prefs.remove(AUTH_TOKEN_KEY)
+            prefs.remove(USER_EMAIL_KEY)
+            prefs.remove(USER_NAME_KEY)
         }
     }
 }

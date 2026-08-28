@@ -20,7 +20,8 @@ import com.dsamaster.app.ui.screens.TopicsScreen
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    innerPadding: androidx.compose.foundation.layout.PaddingValues
+    innerPadding: androidx.compose.foundation.layout.PaddingValues,
+    onLogout: () -> Unit
 ) {
     NavHost(
         navController = navController,
@@ -50,7 +51,7 @@ fun NavGraph(
         }
 
         composable(Screen.MockInterview.route) { MockInterviewScreen() }
-        composable(Screen.Settings.route) { SettingsScreen() }
+        composable(Screen.Settings.route) { SettingsScreen(onLogout = onLogout) }
 
         composable(
             route = TopicDetailRoute.route,

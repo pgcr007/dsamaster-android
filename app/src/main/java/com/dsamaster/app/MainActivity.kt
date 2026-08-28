@@ -15,8 +15,13 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
@@ -26,9 +31,14 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.dsamaster.app.data.preferences.UserPreferences
+import com.dsamaster.app.data.remote.AuthTokenStore
 import com.dsamaster.app.ui.navigation.NavGraph
 import com.dsamaster.app.ui.navigation.Screen
+import com.dsamaster.app.ui.screens.AuthGate
+import com.dsamaster.app.ui.screens.OnboardingScreen
 import com.dsamaster.app.ui.theme.DsaMasterTheme
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -37,10 +47,14 @@ class MainActivity : ComponentActivity() {
     ) { /* no-op: if denied, NotificationHelper's checks simply keep notifications silent */ }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         requestNotificationPermissionIfNeeded()
+
+        var startupDataLoaded = false
+        splashScreen.setKeepOnScreenCondition { !startupDataLoaded }
+
         setContent {
             val application = applicationContext as DsaMasterApplication
             val themeMode by application.userPreferences.themeMode.collectAsState(
@@ -53,8 +67,28 @@ class MainActivity : ComponentActivity() {
                 else -> systemDark
             }
 
+            var isReady by remember { mutableStateOf(false) }
+            var showOnboardingFirst by remember { mutableStateOf(false) }
+            var startedLoggedIn by remember { mutableStateOf(false) }
+
+            LaunchedEffect(Unit) {
+                showOnboardingFirst = !application.userPreferences.hasSeenOnboarding.first()
+                val storedToken = application.userPreferences.authToken.first()
+                startedLoggedIn = !storedToken.isNullOrBlank()
+                AuthTokenStore.token = storedToken
+                isReady = true
+                startupDataLoaded = true
+            }
+
+            if (!isReady) {
+                return@setContent
+            }
+
             DsaMasterTheme(darkTheme = darkTheme) {
-                DsaMasterApp()
+                DsaMasterRoot(
+                    showOnboardingFirst = showOnboardingFirst,
+                    startedLoggedIn = startedLoggedIn
+                )
             }
         }
     }
@@ -74,7 +108,34 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun DsaMasterApp() {
+fun DsaMasterRoot(showOnboardingFirst: Boolean, startedLoggedIn: Boolean) {
+    var onboardingDone by remember { mutableStateOf(!showOnboardingFirst) }
+    var loggedIn by remember { mutableStateOf(startedLoggedIn) }
+    val application = LocalContext.current.applicationContext as DsaMasterApplication
+    val scope = rememberCoroutineScope()
+
+    when {
+        !onboardingDone -> {
+            OnboardingScreen(
+                onFinished = {
+                    scope.launch {
+                        application.userPreferences.setHasSeenOnboarding(true)
+                    }
+                    onboardingDone = true
+                }
+            )
+        }
+        !loggedIn -> {
+            AuthGate(onAuthSuccess = { loggedIn = true })
+        }
+        else -> {
+            DsaMasterApp(onLogout = { loggedIn = false })
+        }
+    }
+}
+
+@Composable
+fun DsaMasterApp(onLogout: () -> Unit) {
     val navController = rememberNavController()
 
     Scaffold(
@@ -104,6 +165,6 @@ fun DsaMasterApp() {
             }
         }
     ) { innerPadding ->
-        NavGraph(navController = navController, innerPadding = innerPadding)
+        NavGraph(navController = navController, innerPadding = innerPadding, onLogout = onLogout)
     }
 }

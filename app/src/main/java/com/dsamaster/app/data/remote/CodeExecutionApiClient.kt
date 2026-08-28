@@ -40,11 +40,11 @@ class CodeExecutionApiClient {
 
     suspend fun execute(request: ExecuteRequestDto): ExecuteResult = withContext(Dispatchers.IO) {
         val baseUrl = BuildConfig.BACKEND_BASE_URL
-        val authToken = BuildConfig.BACKEND_AUTH_TOKEN
+        val authToken = AuthTokenStore.token
 
-        if (baseUrl.isBlank() || authToken.isBlank()) {
+        if (baseUrl.isBlank() || authToken.isNullOrBlank()) {
             return@withContext ExecuteResult.Failure(
-                "Backend URL or auth token is not configured. Check local.properties."
+                "You're not logged in. Please log in again."
             )
         }
 

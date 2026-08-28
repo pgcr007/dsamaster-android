@@ -48,7 +48,7 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(modifier: Modifier = Modifier) {
+fun SettingsScreen(modifier: Modifier = Modifier, onLogout: () -> Unit = {}) {
     val context = LocalContext.current
     val application = context.applicationContext as DsaMasterApplication
     val viewModel: SettingsViewModel = viewModel(
@@ -57,6 +57,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
     val uiState by viewModel.uiState.collectAsState()
 
     var showTimePicker by remember { mutableStateOf(false) }
+    var showLogoutConfirm by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -64,6 +65,32 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
+        Text(
+            text = "Account",
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        Column {
+            if (uiState.userName.isNotBlank()) {
+                Text(text = uiState.userName, style = MaterialTheme.typography.bodyLarge)
+            }
+            Text(
+                text = uiState.userEmail,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        TextButton(
+            onClick = { showLogoutConfirm = true },
+            modifier = Modifier.padding(top = 4.dp)
+        ) {
+            Text("Log out", color = MaterialTheme.colorScheme.error)
+        }
+
+        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
         Text(
             text = "Appearance",
             fontWeight = FontWeight.Bold,
@@ -259,6 +286,28 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             },
             text = {
                 TimePicker(state = timePickerState)
+            }
+        )
+    }
+
+    if (showLogoutConfirm) {
+        AlertDialog(
+            onDismissRequest = { showLogoutConfirm = false },
+            title = { Text("Log out?") },
+            text = { Text("You'll need to log in again to access your problems and progress.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showLogoutConfirm = false
+                    viewModel.logout()
+                    onLogout()
+                }) {
+                    Text("Log out", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutConfirm = false }) {
+                    Text("Cancel")
+                }
             }
         )
     }
