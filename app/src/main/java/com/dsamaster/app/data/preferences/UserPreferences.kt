@@ -40,6 +40,8 @@ class UserPreferences(private val context: Context) {
         private val AUTH_TOKEN_KEY = stringPreferencesKey("auth_token")
         private val USER_EMAIL_KEY = stringPreferencesKey("user_email")
         private val USER_NAME_KEY = stringPreferencesKey("user_name")
+
+        private val PROFILE_CACHE_KEY = stringPreferencesKey("profile_cache_json")
     }
 
     val dailyGoal: Flow<Int> = context.dataStore.data.map { prefs ->
@@ -132,6 +134,19 @@ class UserPreferences(private val context: Context) {
             prefs.remove(AUTH_TOKEN_KEY)
             prefs.remove(USER_EMAIL_KEY)
             prefs.remove(USER_NAME_KEY)
+            prefs.remove(PROFILE_CACHE_KEY)
+        }
+    }
+
+    /** Cached JSON snapshot of the last-fetched ProfileDto, so ProfileScreen has
+     *  something to show immediately while it refreshes from the backend. */
+    val profileCacheJson: Flow<String> = context.dataStore.data.map { prefs ->
+        prefs[PROFILE_CACHE_KEY] ?: ""
+    }
+
+    suspend fun setProfileCacheJson(json: String) {
+        context.dataStore.edit { prefs ->
+            prefs[PROFILE_CACHE_KEY] = json
         }
     }
 }

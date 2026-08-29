@@ -13,6 +13,7 @@ import com.dsamaster.app.ui.screens.DashboardScreen
 import com.dsamaster.app.ui.screens.MockInterviewScreen
 import com.dsamaster.app.ui.screens.ProblemDetailScreen
 import com.dsamaster.app.ui.screens.ProblemsScreen
+import com.dsamaster.app.ui.screens.ProfileScreen
 import com.dsamaster.app.ui.screens.SettingsScreen
 import com.dsamaster.app.ui.screens.TopicDetailScreen
 import com.dsamaster.app.ui.screens.TopicsScreen
@@ -52,6 +53,10 @@ fun NavGraph(
 
         composable(Screen.MockInterview.route) { MockInterviewScreen() }
         composable(Screen.Settings.route) { SettingsScreen(onLogout = onLogout) }
+
+        composable(Screen.Profile.route) {
+            ProfileScreen(onBack = { navController.popBackStack() })
+        }
 
         composable(
             route = TopicDetailRoute.route,

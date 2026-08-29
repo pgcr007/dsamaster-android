@@ -1,6 +1,7 @@
 package com.dsamaster.app.ui.navigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Code
@@ -14,6 +15,9 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector)
     object Problems : Screen("problems", "Problems", Icons.Filled.Code)
     object MockInterview : Screen("mock_interview", "Mock Interview", Icons.Filled.RecordVoiceOver)
     object Settings : Screen("settings", "Settings", Icons.Filled.Settings)
+
+    // Not part of the bottom nav — reached via the profile icon in the top bar.
+    object Profile : Screen("profile", "Profile", Icons.Filled.AccountCircle)
 
     companion object {
         val bottomNavItems = listOf(Dashboard, Topics, Problems, MockInterview, Settings)

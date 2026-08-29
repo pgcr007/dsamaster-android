@@ -9,11 +9,17 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -134,11 +140,41 @@ fun DsaMasterRoot(showOnboardingFirst: Boolean, startedLoggedIn: Boolean) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DsaMasterApp(onLogout: () -> Unit) {
     val navController = rememberNavController()
 
     Scaffold(
+        topBar = {
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentRoute = navBackStackEntry?.destination?.route
+            val isProfileScreen = currentRoute == Screen.Profile.route
+            val title = Screen.bottomNavItems.find { it.route == currentRoute }?.label
+                ?: if (isProfileScreen) Screen.Profile.label else "DSAMaster"
+
+            TopAppBar(
+                title = { Text(title) },
+                navigationIcon = {
+                    if (isProfileScreen) {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
+                    }
+                },
+                actions = {
+                    if (!isProfileScreen) {
+                        IconButton(onClick = {
+                            navController.navigate(Screen.Profile.route) {
+                                launchSingleTop = true
+                            }
+                        }) {
+                            Icon(Icons.Filled.AccountCircle, contentDescription = "Profile")
+                        }
+                    }
+                }
+            )
+        },
         bottomBar = {
             NavigationBar {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
