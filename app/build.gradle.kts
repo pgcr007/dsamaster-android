@@ -17,6 +17,7 @@ val localProperties = Properties().apply {
 }
 val backendBaseUrl: String = localProperties.getProperty("BACKEND_BASE_URL") ?: ""
 val backendAuthToken: String = localProperties.getProperty("BACKEND_AUTH_TOKEN") ?: ""
+val googleWebClientId: String = localProperties.getProperty("GOOGLE_WEB_CLIENT_ID") ?: ""
 
 android {
     namespace = "com.dsamaster.app"
@@ -37,6 +38,7 @@ android {
 
         buildConfigField("String", "BACKEND_BASE_URL", "\"$backendBaseUrl\"")
         buildConfigField("String", "BACKEND_AUTH_TOKEN", "\"$backendAuthToken\"")
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$googleWebClientId\"")
     }
 
     buildTypes {
@@ -83,5 +85,8 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.work.runtime.ktx)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
     ksp(libs.room.compiler)
 }

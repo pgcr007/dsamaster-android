@@ -3,6 +3,7 @@ package com.dsamaster.app.data.remote
 import com.dsamaster.app.BuildConfig
 import com.dsamaster.app.data.remote.dto.AuthResponseDto
 import com.dsamaster.app.data.remote.dto.ErrorResponseDto
+import com.dsamaster.app.data.remote.dto.GoogleAuthRequestDto
 import com.dsamaster.app.data.remote.dto.LoginRequestDto
 import com.dsamaster.app.data.remote.dto.RegisterRequestDto
 import kotlinx.coroutines.Dispatchers
@@ -74,6 +75,24 @@ class AuthApiClient {
             val requestBodyJson = json.encodeToString(LoginRequestDto(email = email, password = password))
             val httpRequest = Request.Builder()
                 .url("$baseUrl/auth/login")
+                .post(requestBodyJson.toRequestBody(jsonMediaType))
+                .build()
+
+            executeAuthCall(httpRequest)
+        }
+
+    suspend fun googleSignIn(idToken: String): AuthResult =
+        withContext(Dispatchers.IO) {
+            val baseUrl = BuildConfig.BACKEND_BASE_URL
+            if (baseUrl.isBlank()) {
+                return@withContext AuthResult.Failure(
+                    "Backend URL is not configured. Check local.properties."
+                )
+            }
+
+            val requestBodyJson = json.encodeToString(GoogleAuthRequestDto(idToken = idToken))
+            val httpRequest = Request.Builder()
+                .url("$baseUrl/auth/google")
                 .post(requestBodyJson.toRequestBody(jsonMediaType))
                 .build()
 

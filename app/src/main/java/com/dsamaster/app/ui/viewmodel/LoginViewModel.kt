@@ -39,4 +39,29 @@ class LoginViewModel(
             }
         }
     }
+
+    fun loginWithGoogle(idToken: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _uiState.value = AuthUiState.Loading
+            when (val result = authApiClient.googleSignIn(idToken)) {
+                is AuthResult.Success -> {
+                    userPreferences.setAuthSession(
+                        token = result.token,
+                        email = result.email,
+                        name = result.name
+                    )
+                    AuthTokenStore.token = result.token
+                    _uiState.value = AuthUiState.Idle
+                    onSuccess()
+                }
+                is AuthResult.Failure -> {
+                    _uiState.value = AuthUiState.Error(result.message)
+                }
+            }
+        }
+    }
+
+    fun setError(message: String) {
+        _uiState.value = AuthUiState.Error(message)
+    }
 }
