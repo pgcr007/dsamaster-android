@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.dsamaster.app.data.backup.BackupManager
 import com.dsamaster.app.data.backup.BackupResult
 import com.dsamaster.app.data.preferences.UserPreferences
-import com.dsamaster.app.data.remote.AuthTokenStore
 import com.dsamaster.app.notifications.NotificationScheduler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,9 +22,7 @@ data class SettingsUiState(
     val reminderHour: Int = 19,
     val reminderMinute: Int = 0,
     val weeklySummaryEnabled: Boolean = true,
-    val themeMode: String = UserPreferences.DEFAULT_THEME_MODE,
-    val userEmail: String = "",
-    val userName: String = ""
+    val themeMode: String = UserPreferences.DEFAULT_THEME_MODE
 )
 
 class SettingsViewModel(
@@ -40,9 +37,7 @@ class SettingsViewModel(
         userPreferences.reminderHour,
         userPreferences.reminderMinute,
         userPreferences.weeklySummaryEnabled,
-        userPreferences.themeMode,
-        userPreferences.userEmail,
-        userPreferences.userName
+        userPreferences.themeMode
     ) { values ->
         SettingsUiState(
             dailyGoal = values[0] as Int,
@@ -50,9 +45,7 @@ class SettingsViewModel(
             reminderHour = values[2] as Int,
             reminderMinute = values[3] as Int,
             weeklySummaryEnabled = values[4] as Boolean,
-            themeMode = values[5] as String,
-            userEmail = values[6] as String,
-            userName = values[7] as String
+            themeMode = values[5] as String
         )
     }.stateIn(
         scope = viewModelScope,
@@ -124,13 +117,6 @@ class SettingsViewModel(
     fun testRunDailyReminder() = NotificationScheduler.testRunDailyReminder(appContext)
     fun testRunStreakRisk() = NotificationScheduler.testRunStreakRisk(appContext)
     fun testRunWeeklySummary() = NotificationScheduler.testRunWeeklySummary(appContext)
-
-    fun logout() {
-        viewModelScope.launch {
-            userPreferences.clearAuthSession()
-            AuthTokenStore.token = null
-        }
-    }
 
     private suspend fun rescheduleNotifications() {
         val state = uiState.value

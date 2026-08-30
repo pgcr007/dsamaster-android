@@ -198,7 +198,7 @@ class ProfileViewModel(
             when (val result = profileApiClient.updateProfile(request)) {
                 is ProfileResult.Success -> {
                     userPreferences.setProfileCacheJson(json.encodeToString(result.profile))
-                    // Keep the cached display name (used elsewhere, e.g. Settings) in sync.
+                    // Keep the cached display name (used elsewhere) in sync.
                     userPreferences.setAuthSession(
                         token = AuthTokenStore.token.orEmpty(),
                         email = result.profile.email,
@@ -221,6 +221,13 @@ class ProfileViewModel(
 
     fun clearMessages() {
         _uiState.value = _uiState.value.copy(errorMessage = null, infoMessage = null)
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            userPreferences.clearAuthSession()
+            AuthTokenStore.token = null
+        }
     }
 
     private fun ProfileDto.toEditState() = ProfileEditState(

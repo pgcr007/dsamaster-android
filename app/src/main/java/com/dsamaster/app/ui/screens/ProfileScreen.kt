@@ -22,6 +22,8 @@ import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
@@ -81,13 +83,18 @@ private val TARGET_COMPANIES = listOf(
 )
 
 @Composable
-fun ProfileScreen(modifier: Modifier = Modifier, onBack: () -> Unit = {}) {
+fun ProfileScreen(
+    modifier: Modifier = Modifier,
+    onBack: () -> Unit = {},
+    onLogout: () -> Unit = {}
+) {
     val context = LocalContext.current
     val application = context.applicationContext as DsaMasterApplication
     val viewModel: ProfileViewModel = viewModel(factory = ProfileViewModelFactory(application))
 
     val uiState by viewModel.uiState.collectAsState()
     val stats by viewModel.stats.collectAsState()
+    var showLogoutConfirm by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -140,6 +147,24 @@ fun ProfileScreen(modifier: Modifier = Modifier, onBack: () -> Unit = {}) {
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Edit profile")
                 }
+
+                Spacer(modifier = Modifier.height(24.dp))
+                HorizontalDivider()
+                Spacer(modifier = Modifier.height(16.dp))
+
+                TextButton(
+                    onClick = { showLogoutConfirm = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(
+                        Icons.Filled.Logout,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Log out", color = MaterialTheme.colorScheme.error)
+                }
             } else {
                 ProfileEditForm(
                     draft = uiState.draft,
@@ -153,6 +178,28 @@ fun ProfileScreen(modifier: Modifier = Modifier, onBack: () -> Unit = {}) {
 
             Spacer(modifier = Modifier.height(32.dp))
         }
+    }
+
+    if (showLogoutConfirm) {
+        AlertDialog(
+            onDismissRequest = { showLogoutConfirm = false },
+            title = { Text("Log out?") },
+            text = { Text("You'll need to log in again to access your problems and progress.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showLogoutConfirm = false
+                    viewModel.logout()
+                    onLogout()
+                }) {
+                    Text("Log out", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutConfirm = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 

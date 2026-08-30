@@ -17,6 +17,7 @@ import com.dsamaster.app.ui.screens.ProfileScreen
 import com.dsamaster.app.ui.screens.SettingsScreen
 import com.dsamaster.app.ui.screens.TopicDetailScreen
 import com.dsamaster.app.ui.screens.TopicsScreen
+import androidx.navigation.NavGraph.Companion.findStartDestination
 
 @Composable
 fun NavGraph(
@@ -33,6 +34,27 @@ fun NavGraph(
             DashboardScreen(
                 onReviewClick = { problemId ->
                     navController.navigate(CodeEditorRoute.createRoute(problemId, isReview = true))
+                },
+                onProblemClick = { problemId ->
+                    navController.navigate(ProblemDetailRoute.createRoute(problemId))
+                },
+                onBrowseTopics = {
+                    navController.navigate(Screen.Topics.route) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onBrowseProblems = {
+                    navController.navigate(Screen.Problems.route) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 }
             )
         }
@@ -52,10 +74,13 @@ fun NavGraph(
         }
 
         composable(Screen.MockInterview.route) { MockInterviewScreen() }
-        composable(Screen.Settings.route) { SettingsScreen(onLogout = onLogout) }
+        composable(Screen.Settings.route) { SettingsScreen() }
 
         composable(Screen.Profile.route) {
-            ProfileScreen(onBack = { navController.popBackStack() })
+            ProfileScreen(
+                onBack = { navController.popBackStack() },
+                onLogout = onLogout
+            )
         }
 
         composable(
