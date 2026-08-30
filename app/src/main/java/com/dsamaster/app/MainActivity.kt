@@ -15,8 +15,6 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -32,12 +30,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.dsamaster.app.data.preferences.UserPreferences
 import com.dsamaster.app.data.remote.AuthTokenStore
+import com.dsamaster.app.ui.components.DsaMasterBottomBar
 import com.dsamaster.app.ui.navigation.NavGraph
 import com.dsamaster.app.ui.navigation.Screen
 import com.dsamaster.app.ui.screens.AuthGate
@@ -149,21 +146,27 @@ fun DsaMasterApp(onLogout: () -> Unit) {
         topBar = {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
+            val isBottomLevelScreen = Screen.bottomNavItems.any { it.route == currentRoute }
             val isProfileScreen = currentRoute == Screen.Profile.route
-            val title = Screen.bottomNavItems.find { it.route == currentRoute }?.label
-                ?: if (isProfileScreen) Screen.Profile.label else "DSAMaster"
+            val showBackButton = !isBottomLevelScreen
+
+            val title = when {
+                isBottomLevelScreen -> Screen.bottomNavItems.find { it.route == currentRoute }?.label ?: "DSAMaster"
+                isProfileScreen -> Screen.Profile.label
+                else -> "" // detail screens (Topic/Problem/CodeEditor) show their own title inline
+            }
 
             TopAppBar(
                 title = { Text(title) },
                 navigationIcon = {
-                    if (isProfileScreen) {
+                    if (showBackButton) {
                         IconButton(onClick = { navController.popBackStack() }) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         }
                     }
                 },
                 actions = {
-                    if (!isProfileScreen) {
+                    if (!showBackButton) {
                         IconButton(onClick = {
                             navController.navigate(Screen.Profile.route) {
                                 launchSingleTop = true
@@ -176,29 +179,7 @@ fun DsaMasterApp(onLogout: () -> Unit) {
             )
         },
         bottomBar = {
-            NavigationBar {
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentDestination = navBackStackEntry?.destination
-
-                Screen.bottomNavItems.forEach { screen ->
-                    val selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
-
-                    NavigationBarItem(
-                        icon = { Icon(imageVector = screen.icon, contentDescription = screen.label) },
-                        label = { Text(screen.label) },
-                        selected = selected,
-                        onClick = {
-                            navController.navigate(screen.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }
-                    )
-                }
-            }
+            DsaMasterBottomBar(navController = navController)
         }
     ) { innerPadding ->
         NavGraph(navController = navController, innerPadding = innerPadding, onLogout = onLogout)
