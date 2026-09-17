@@ -6,6 +6,7 @@ import com.dsamaster.app.data.preferences.UserPreferences
 import com.dsamaster.app.data.remote.AuthApiClient
 import com.dsamaster.app.data.remote.AuthResult
 import com.dsamaster.app.data.remote.AuthTokenStore
+import com.dsamaster.app.data.sync.SyncManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,6 +20,7 @@ sealed class AuthUiState {
 
 class RegisterViewModel(
     private val userPreferences: UserPreferences,
+    private val syncManager: SyncManager,
     private val authApiClient: AuthApiClient = AuthApiClient()
 ) : ViewModel() {
 
@@ -36,6 +38,8 @@ class RegisterViewModel(
                         name = result.name
                     )
                     AuthTokenStore.token = result.token
+                    // Bind progress/streaks to this brand-new account.
+                    syncManager.syncAfterLogin(result.userId, result.token)
                     _uiState.value = AuthUiState.Idle
                     onSuccess()
                 }
@@ -57,6 +61,8 @@ class RegisterViewModel(
                         name = result.name
                     )
                     AuthTokenStore.token = result.token
+                    // Bind progress/streaks to this Google account.
+                    syncManager.syncAfterLogin(result.userId, result.token)
                     _uiState.value = AuthUiState.Idle
                     onSuccess()
                 }

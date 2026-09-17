@@ -26,4 +26,15 @@ interface UserProgressDao {
 
     @Delete
     suspend fun deleteProgress(progress: UserProgress)
+
+    // --- Cloud sync support ---
+
+    @Query("SELECT * FROM user_progress")
+    suspend fun getAllProgressOnce(): List<UserProgress>
+
+    @Query("SELECT * FROM user_progress WHERE problemId = :problemId")
+    suspend fun getProgressForProblemOnce(problemId: Long): UserProgress?
+
+    @Query("DELETE FROM user_progress")
+    suspend fun clearAll()
 }

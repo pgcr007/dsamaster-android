@@ -23,4 +23,15 @@ interface StreakDao {
 
     @Delete
     suspend fun deleteStreakEntry(entry: StreakEntry)
+
+    // --- Cloud sync support ---
+
+    @Query("SELECT * FROM streak_entries")
+    suspend fun getAllStreakEntriesOnce(): List<StreakEntry>
+
+    @Query("SELECT * FROM streak_entries WHERE date = :date")
+    suspend fun getStreakEntryByDateOnce(date: String): StreakEntry?
+
+    @Query("DELETE FROM streak_entries")
+    suspend fun clearAll()
 }

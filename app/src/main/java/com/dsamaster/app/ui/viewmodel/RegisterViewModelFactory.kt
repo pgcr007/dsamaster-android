@@ -11,7 +11,8 @@ class RegisterViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
         @Suppress("UNCHECKED_CAST")
         return RegisterViewModel(
-            userPreferences = application.userPreferences
+            userPreferences = application.userPreferences,
+            syncManager = application.syncManager
         ) as T
     }
 }

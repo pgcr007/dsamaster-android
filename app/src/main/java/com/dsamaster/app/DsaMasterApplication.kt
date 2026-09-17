@@ -5,6 +5,7 @@ import android.util.Log
 import com.dsamaster.app.data.DSAMasterDatabase
 import com.dsamaster.app.data.preferences.UserPreferences
 import com.dsamaster.app.data.remote.ReviewRetryScheduler
+import com.dsamaster.app.data.remote.SyncApiClient
 import com.dsamaster.app.data.repository.CodeDraftRepository
 import com.dsamaster.app.data.repository.CodeExecutionRepository
 import com.dsamaster.app.data.repository.InterviewRepository
@@ -18,6 +19,7 @@ import com.dsamaster.app.data.repository.TopicRepository
 import com.dsamaster.app.data.repository.UserProgressRepository
 import com.dsamaster.app.data.seed.ProblemSeeder
 import com.dsamaster.app.data.seed.TopicSeeder
+import com.dsamaster.app.data.sync.SyncManager
 import com.dsamaster.app.notifications.NotificationHelper
 import com.dsamaster.app.notifications.NotificationScheduler
 import kotlinx.coroutines.CoroutineScope
@@ -61,8 +63,31 @@ class DsaMasterApplication : Application() {
         PendingReviewRequestRepository(database.pendingReviewRequestDao())
     }
 
+    /**
+     * Binds userProgressRepository / streakRepository to whichever account
+     * (Google or email/password) is currently signed in. Call
+     * `syncManager.syncAfterLogin(userId)` right after a successful
+     * login/register.
+     */
+    val syncManager: SyncManager by lazy {
+        SyncManager(
+            userProgressRepository = userProgressRepository,
+            streakRepository = streakRepository,
+            userPreferences = userPreferences,
+            syncApiClient = SyncApiClient()
+        )
+    }
+
     override fun onCreate() {
         super.onCreate()
+
+        // Every local progress/streak write is pushed to the signed-in
+        // account's cloud copy in the background. Wired here (rather than in
+        // the repository constructors) to avoid a circular dependency
+        // between the repositories and SyncManager.
+        userProgressRepository.onWrite = { progress -> syncManager.pushProgressAsync(progress) }
+        streakRepository.onWrite = { entry -> syncManager.pushStreakAsync(entry) }
+
         val topicSeeder = TopicSeeder(this, topicRepository)
         val problemSeeder = ProblemSeeder(this, topicRepository, problemRepository)
         applicationScope.launch {

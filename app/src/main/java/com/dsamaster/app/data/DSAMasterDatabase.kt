@@ -30,7 +30,7 @@ import com.dsamaster.app.data.entity.UserProgress
         MockInterviewSession::class,
         PendingReviewRequest::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class DSAMasterDatabase : RoomDatabase() {
@@ -54,6 +54,7 @@ abstract class DSAMasterDatabase : RoomDatabase() {
                     DSAMasterDatabase::class.java,
                     "dsamaster_database"
                 )
+                    .addMigrations(MIGRATION_5_6)
                     .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance

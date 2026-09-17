@@ -26,5 +26,8 @@ data class UserProgress(
     val status: String, // "not_started" | "attempted" | "solved"
     val lastAttemptDate: Long? = null, // epoch millis
     val timesReviewed: Int = 0,
-    val nextReviewDate: Long? = null // epoch millis, for spaced repetition
+    val nextReviewDate: Long? = null, // epoch millis, for spaced repetition
+    // Last-write-wins clock used to reconcile this row with the cloud copy
+    // bound to whichever account (Google or email/password) is signed in.
+    val updatedAt: Long = System.currentTimeMillis()
 )

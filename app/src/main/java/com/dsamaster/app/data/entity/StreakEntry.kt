@@ -16,5 +16,8 @@ data class StreakEntry(
     val date: String, // "yyyy-MM-dd" format, unique per day
     val minutesActive: Int = 0,
     val problemsSolved: Int = 0,
-    val streakFreezeUsed: Boolean = false
+    val streakFreezeUsed: Boolean = false,
+    // Last-write-wins clock used to reconcile this row with the cloud copy
+    // bound to whichever account (Google or email/password) is signed in.
+    val updatedAt: Long = System.currentTimeMillis()
 )

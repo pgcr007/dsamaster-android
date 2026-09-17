@@ -42,6 +42,8 @@ class UserPreferences(private val context: Context) {
         private val USER_NAME_KEY = stringPreferencesKey("user_name")
 
         private val PROFILE_CACHE_KEY = stringPreferencesKey("profile_cache_json")
+
+        private val LAST_SYNCED_USER_ID_KEY = stringPreferencesKey("last_synced_user_id")
     }
 
     val dailyGoal: Flow<Int> = context.dataStore.data.map { prefs ->
@@ -147,6 +149,24 @@ class UserPreferences(private val context: Context) {
     suspend fun setProfileCacheJson(json: String) {
         context.dataStore.edit { prefs ->
             prefs[PROFILE_CACHE_KEY] = json
+        }
+    }
+
+    /**
+     * The backend user id (Mongo ObjectId) whose progress/streak data is
+     * currently sitting in the local Room database. Compared against the
+     * newly-logged-in user's id so SyncManager knows whether to wipe local
+     * data before pulling a *different* account's cloud copy. Deliberately
+     * NOT cleared on logout — logging back into the same account should not
+     * wipe its own local cache.
+     */
+    val lastSyncedUserId: Flow<String?> = context.dataStore.data.map { prefs ->
+        prefs[LAST_SYNCED_USER_ID_KEY]
+    }
+
+    suspend fun setLastSyncedUserId(userId: String) {
+        context.dataStore.edit { prefs ->
+            prefs[LAST_SYNCED_USER_ID_KEY] = userId
         }
     }
 }
