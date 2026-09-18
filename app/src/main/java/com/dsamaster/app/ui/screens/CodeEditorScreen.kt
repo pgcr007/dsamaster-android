@@ -1,19 +1,37 @@
 package com.dsamaster.app.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.filled.Memory
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material.icons.filled.QuestionAnswer
+import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.TipsAndUpdates
+import androidx.compose.material.icons.rounded.EmojiEvents
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -28,32 +46,45 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dsamaster.app.DsaMasterApplication
+import com.dsamaster.app.data.entity.Problem
 import com.dsamaster.app.data.remote.ExecuteResult
 import com.dsamaster.app.data.remote.dto.ReviewResponse
 import com.dsamaster.app.data.remote.dto.TestCaseResultDto
+import com.dsamaster.app.ui.components.InlineErrorCard
+import com.dsamaster.app.ui.components.LoadingState
 import com.dsamaster.app.ui.theme.ErrorRed
 import com.dsamaster.app.ui.theme.SuccessGreen
 import com.dsamaster.app.ui.theme.TealAccent
 import com.dsamaster.app.ui.theme.WarningAmber
 import com.dsamaster.app.ui.viewmodel.CodeEditorViewModel
 import com.dsamaster.app.ui.viewmodel.CodeEditorViewModelFactory
-import com.dsamaster.app.ui.components.InlineErrorCard
-import com.dsamaster.app.ui.components.LoadingState
 
-private val languages = listOf("python" to "Python", "java" to "Java", "cpp" to "C++")
+private val LANGUAGES = listOf("python" to "Python", "java" to "Java", "cpp" to "C++")
 
 private const val INDENT_UNIT = "    " // 4 spaces
 private val bracketPairs = mapOf('(' to ')', '[' to ']', '{' to '}')
 private val quoteChars = setOf('"', '\'')
 private val closingBrackets = setOf(')', ']', '}')
+
+private fun difficultyColor(difficulty: String): Color = when (difficulty) {
+    "Easy" -> SuccessGreen
+    "Medium" -> WarningAmber
+    "Hard" -> ErrorRed
+    else -> TealAccent
+}
 
 // Central entry point: inspects the diff between old and new TextFieldValue
 // and applies IDE-like behaviors (auto-indent, auto-dedent, bracket/quote
@@ -192,37 +223,20 @@ fun CodeEditorScreen(problemId: Long, isReviewMode: Boolean = false, modifier: M
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
-            Text(text = problem.title, style = MaterialTheme.typography.titleLarge)
+            ProblemHeaderCard(problem = problem)
         }
 
         if (uiState.isReviewMode) {
             item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = TealAccent.copy(alpha = 0.12f))
-                ) {
-                    Text(
-                        text = "🧠 Review mode — solve this cold. Your saved draft won't load, and this attempt won't overwrite it.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TealAccent,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
+                ReviewModeBanner()
             }
         }
 
         item {
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                languages.forEachIndexed { index, (key, label) ->
-                    SegmentedButton(
-                        selected = uiState.selectedLanguage == key,
-                        onClick = { viewModel.onLanguageSelected(key) },
-                        shape = SegmentedButtonDefaults.itemShape(index, languages.size)
-                    ) {
-                        Text(label)
-                    }
-                }
-            }
+            LanguageSelector(
+                selected = uiState.selectedLanguage,
+                onSelect = viewModel::onLanguageSelected
+            )
         }
 
         item {
@@ -237,27 +251,43 @@ fun CodeEditorScreen(problemId: Long, isReviewMode: Boolean = false, modifier: M
                     .fillMaxWidth()
                     .height(320.dp),
                 textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
-                label = { Text("Your code") }
+                label = { Text("Your code") },
+                shape = RoundedCornerShape(14.dp)
             )
+        }
+
+        if (!uiState.isReviewMode) {
+            item {
+                Text(
+                    text = "Autosaves as you type.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
 
         item {
             Button(
                 onClick = viewModel::runCode,
                 enabled = !uiState.isRunning,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(14.dp)
             ) {
                 if (uiState.isRunning) {
                     CircularProgressIndicator(
-                        modifier = Modifier.height(18.dp),
-                        strokeWidth = 2.dp
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                     Text(
-                        text = "  Running (server may need up to a minute to wake up)...",
+                        text = "  Running (server may take up to a minute to wake up)...",
                         style = MaterialTheme.typography.bodyMedium
                     )
                 } else {
-                    Text("Run against test cases")
+                    Icon(Icons.Filled.PlayArrow, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Text("  Run against test cases", style = MaterialTheme.typography.titleSmall)
                 }
             }
         }
@@ -270,23 +300,34 @@ fun CodeEditorScreen(problemId: Long, isReviewMode: Boolean = false, modifier: M
                 OutlinedButton(
                     onClick = viewModel::requestReview,
                     enabled = !uiState.isReviewing,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(48.dp),
+                    shape = RoundedCornerShape(14.dp)
                 ) {
                     if (uiState.isReviewing) {
-                        CircularProgressIndicator(modifier = Modifier.height(16.dp), strokeWidth = 2.dp)
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                     } else {
-                        Text("Get AI Review")
+                        Icon(Icons.Filled.Psychology, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Text("  Get AI Review", style = MaterialTheme.typography.labelLarge)
                     }
                 }
                 OutlinedButton(
                     onClick = viewModel::requestHint,
                     enabled = !uiState.isRequestingHint && uiState.hintLevel < 3,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(48.dp),
+                    shape = RoundedCornerShape(14.dp)
                 ) {
                     if (uiState.isRequestingHint) {
-                        CircularProgressIndicator(modifier = Modifier.height(16.dp), strokeWidth = 2.dp)
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                     } else {
-                        Text(if (uiState.hintLevel == 0) "I'm Stuck" else "More Help")
+                        Icon(Icons.Filled.Lightbulb, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Text(
+                            text = if (uiState.hintLevel == 0) "  I'm Stuck" else "  More Help",
+                            style = MaterialTheme.typography.labelLarge
+                        )
                     }
                 }
             }
@@ -294,17 +335,7 @@ fun CodeEditorScreen(problemId: Long, isReviewMode: Boolean = false, modifier: M
 
         if (uiState.justMarkedSolved) {
             item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = SuccessGreen.copy(alpha = 0.15f))
-                ) {
-                    Text(
-                        text = "🎉 All test cases passed — marked as solved, streak updated!",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = SuccessGreen,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
+                JustSolvedCard()
             }
         }
 
@@ -339,13 +370,10 @@ fun CodeEditorScreen(problemId: Long, isReviewMode: Boolean = false, modifier: M
                 }
             }
             is ExecuteResult.Success -> {
+                val passedCount = result.response.results.count { it.passed }
+                val total = result.response.results.size
                 item {
-                    val passedCount = result.response.results.count { it.passed }
-                    val total = result.response.results.size
-                    Text(
-                        text = "$passedCount / $total test cases passed",
-                        style = MaterialTheme.typography.titleMedium
-                    )
+                    TestSummaryBar(passed = passedCount, total = total)
                 }
                 items(result.response.results) { testResult ->
                     TestCaseResultCard(testResult)
@@ -356,70 +384,308 @@ fun CodeEditorScreen(problemId: Long, isReviewMode: Boolean = false, modifier: M
     }
 }
 
+// ---------------------------------------------------------------------------
+// Header
+// ---------------------------------------------------------------------------
+
 @Composable
-private fun HintCard(level: Int, hint: String, modifier: Modifier = Modifier) {
+private fun ProblemHeaderCard(problem: Problem, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = WarningAmber.copy(alpha = 0.12f))
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Surface(
-                shape = RoundedCornerShape(8.dp),
-                color = WarningAmber.copy(alpha = 0.2f)
-            ) {
-                Text(
-                    text = "Hint $level / 3",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = WarningAmber,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                )
-            }
             Text(
-                text = hint,
+                text = problem.title,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            DifficultyBadge(difficulty = problem.difficulty)
+        }
+    }
+}
+
+@Composable
+private fun DifficultyBadge(difficulty: String, modifier: Modifier = Modifier) {
+    val color = difficultyColor(difficulty)
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(8.dp),
+        color = color.copy(alpha = 0.15f)
+    ) {
+        Text(
+            text = difficulty,
+            style = MaterialTheme.typography.labelSmall,
+            color = color,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+        )
+    }
+}
+
+@Composable
+private fun ReviewModeBanner(modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = TealAccent.copy(alpha = 0.12f))
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Psychology,
+                contentDescription = null,
+                tint = TealAccent,
+                modifier = Modifier.size(20.dp)
+            )
+            Text(
+                text = "Review mode — solve this cold. Your saved draft won't load, and this attempt won't overwrite it.",
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(top = 8.dp)
+                color = TealAccent,
+                modifier = Modifier.padding(start = 10.dp)
             )
         }
     }
 }
+
+// ---------------------------------------------------------------------------
+// Language selector
+// ---------------------------------------------------------------------------
+
+@Composable
+private fun LanguageSelector(
+    selected: String,
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    SingleChoiceSegmentedButtonRow(modifier = modifier.fillMaxWidth()) {
+        LANGUAGES.forEachIndexed { index, (key, label) ->
+            SegmentedButton(
+                selected = selected == key,
+                onClick = { onSelect(key) },
+                shape = SegmentedButtonDefaults.itemShape(index, LANGUAGES.size)
+            ) {
+                Text(label)
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Solved celebration
+// ---------------------------------------------------------------------------
+
+@Composable
+private fun JustSolvedCard(modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = SuccessGreen.copy(alpha = 0.15f))
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(SuccessGreen.copy(alpha = 0.2f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.EmojiEvents,
+                    contentDescription = null,
+                    tint = SuccessGreen,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+            Text(
+                text = "All test cases passed — marked as solved, streak updated!",
+                style = MaterialTheme.typography.bodyMedium,
+                color = SuccessGreen,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.padding(start = 12.dp)
+            )
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Hint
+// ---------------------------------------------------------------------------
+
+@Composable
+private fun HintCard(level: Int, hint: String, modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = WarningAmber.copy(alpha = 0.12f))
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Filled.Lightbulb,
+                    contentDescription = null,
+                    tint = WarningAmber,
+                    modifier = Modifier.size(18.dp)
+                )
+                Text(
+                    text = "Hint",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = WarningAmber,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(start = 6.dp)
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    repeat(3) { index ->
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .clip(CircleShape)
+                                .background(if (index < level) WarningAmber else WarningAmber.copy(alpha = 0.25f))
+                        )
+                    }
+                }
+            }
+            Text(
+                text = hint,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(top = 10.dp)
+            )
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// AI review
+// ---------------------------------------------------------------------------
 
 @Composable
 private fun ReviewResultCard(review: ReviewResponse, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = TealAccent.copy(alpha = 0.1f))
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Text(
-                text = "AI Code Review",
-                style = MaterialTheme.typography.titleMedium,
-                color = TealAccent
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Filled.Psychology,
+                    contentDescription = null,
+                    tint = TealAccent,
+                    modifier = Modifier.size(18.dp)
+                )
+                Text(
+                    text = "AI Code Review",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = TealAccent,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(start = 6.dp)
+                )
+            }
+            ReviewSectionRow(icon = Icons.Filled.CheckCircle, label = "Correctness", value = review.correctness)
+            ReviewSectionRow(icon = Icons.Filled.Speed, label = "Time complexity", value = review.timeComplexity)
+            ReviewSectionRow(icon = Icons.Filled.Memory, label = "Space complexity", value = review.spaceComplexity)
+            ReviewSectionRow(
+                icon = Icons.Filled.TipsAndUpdates,
+                label = "Suggested improvement",
+                value = review.improvement
             )
-            ReviewSection(label = "Correctness", value = review.correctness)
-            ReviewSection(label = "Time complexity", value = review.timeComplexity)
-            ReviewSection(label = "Space complexity", value = review.spaceComplexity)
-            ReviewSection(label = "Suggested improvement", value = review.improvement)
-            ReviewSection(label = "Interviewer might ask", value = review.followUpQuestion)
+            ReviewSectionRow(
+                icon = Icons.Filled.QuestionAnswer,
+                label = "Interviewer might ask",
+                value = review.followUpQuestion
+            )
         }
     }
 }
 
 @Composable
-private fun ReviewSection(label: String, value: String, modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+private fun ReviewSectionRow(
+    icon: ImageVector,
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Row(modifier = modifier.fillMaxWidth()) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = TealAccent,
+            modifier = Modifier
+                .size(16.dp)
+                .padding(top = 2.dp)
         )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(top = 2.dp)
-        )
+        Column(modifier = Modifier.padding(start = 10.dp)) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Test results
+// ---------------------------------------------------------------------------
+
+@Composable
+private fun TestSummaryBar(passed: Int, total: Int, modifier: Modifier = Modifier) {
+    val ratio = if (total == 0) 0f else passed.toFloat() / total
+    val color = when {
+        total > 0 && passed == total -> SuccessGreen
+        passed == 0 -> ErrorRed
+        else -> WarningAmber
+    }
+
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "$passed / $total test cases passed",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Icon(
+                    imageVector = if (total > 0 && passed == total) Icons.Filled.CheckCircle else Icons.Filled.Cancel,
+                    contentDescription = null,
+                    tint = color,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            LinearProgressIndicator(
+                progress = { ratio },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(6.dp)
+                    .clip(RoundedCornerShape(3.dp)),
+                color = color,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+        }
     }
 }
 
@@ -429,23 +695,39 @@ private fun TestCaseResultCard(result: TestCaseResultDto, modifier: Modifier = M
 
     Card(
         modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Surface(
                     shape = RoundedCornerShape(8.dp),
                     color = color.copy(alpha = 0.15f)
                 ) {
-                    Text(
-                        text = if (result.passed) "Passed" else "Failed",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = color,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                    )
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = if (result.passed) Icons.Filled.CheckCircle else Icons.Filled.Cancel,
+                            contentDescription = null,
+                            tint = color,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Text(
+                            text = if (result.passed) "Passed" else "Failed",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = color,
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                    }
                 }
                 Text(
                     text = result.status,
@@ -453,35 +735,39 @@ private fun TestCaseResultCard(result: TestCaseResultDto, modifier: Modifier = M
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            Text(
-                text = "Input: ${result.input}",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-            Text(
-                text = "Expected: ${result.expectedOutput}",
-                style = MaterialTheme.typography.bodySmall
-            )
-            Text(
-                text = "Got: ${result.actualOutput}",
-                style = MaterialTheme.typography.bodySmall
-            )
+            Spacer(modifier = Modifier.height(4.dp))
+            TestCaseLine(label = "Input", value = result.input)
+            TestCaseLine(label = "Expected", value = result.expectedOutput)
+            TestCaseLine(label = "Got", value = result.actualOutput)
             if (!result.stderr.isNullOrBlank()) {
-                Text(
-                    text = "Error: ${result.stderr}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = ErrorRed,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
+                TestCaseLine(label = "Error", value = result.stderr, valueColor = ErrorRed)
             }
             if (!result.compileOutput.isNullOrBlank()) {
-                Text(
-                    text = "Compile error: ${result.compileOutput}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = ErrorRed,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
+                TestCaseLine(label = "Compile error", value = result.compileOutput, valueColor = ErrorRed)
             }
         }
+    }
+}
+
+@Composable
+private fun TestCaseLine(
+    label: String,
+    value: String,
+    valueColor: Color = Color.Unspecified,
+    modifier: Modifier = Modifier
+) {
+    Row(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = "$label: ",
+            style = MaterialTheme.typography.bodySmall,
+            fontFamily = FontFamily.Monospace,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodySmall,
+            fontFamily = FontFamily.Monospace,
+            color = if (valueColor == Color.Unspecified) MaterialTheme.colorScheme.onSurface else valueColor
+        )
     }
 }
