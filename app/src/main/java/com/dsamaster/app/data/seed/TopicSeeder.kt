@@ -13,29 +13,34 @@ class TopicSeeder(
     private val json = Json { ignoreUnknownKeys = true }
 
     /**
-     * Seeds topics from assets/topics.json into Room, but only if the table is
-     * currently empty — safe to call on every app launch without duplicating data.
+     * Seeds topics from assets/topics.json into Room. Incremental, matched
+     * by `name` — same pattern as ProblemSeeder/LearningContentSeeder — so
+     * adding new entries to topics.json later just inserts what's new on
+     * next launch instead of requiring a reinstall to see them.
      */
     suspend fun seedIfNeeded() {
-        val existingTopics = topicRepository.getAllTopics().first()
-        if (existingTopics.isNotEmpty()) return
-
         val jsonString = context.assets.open("topics.json").bufferedReader().use { it.readText() }
         val seeds = json.decodeFromString<List<TopicSeed>>(jsonString)
 
-        val topics = seeds.map { seed ->
-            Topic(
-                name = seed.name,
-                category = seed.category,
-                explanation = seed.explanation,
-                diagramResId = seed.diagramType,
-                timeComplexity = seed.timeComplexity,
-                spaceComplexity = seed.spaceComplexity,
-                difficultyLevel = seed.difficultyLevel,
-                companyTags = seed.companyTags
-            )
-        }
+        val existingNames = topicRepository.getAllTopics().first().map { it.name }.toSet()
 
-        topicRepository.insertTopics(topics)
+        val newTopics = seeds
+            .filter { it.name !in existingNames }
+            .map { seed ->
+                Topic(
+                    name = seed.name,
+                    category = seed.category,
+                    explanation = seed.explanation,
+                    diagramResId = seed.diagramType,
+                    timeComplexity = seed.timeComplexity,
+                    spaceComplexity = seed.spaceComplexity,
+                    difficultyLevel = seed.difficultyLevel,
+                    companyTags = seed.companyTags
+                )
+            }
+
+        if (newTopics.isNotEmpty()) {
+            topicRepository.insertTopics(newTopics)
+        }
     }
 }

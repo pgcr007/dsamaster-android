@@ -1,5 +1,25 @@
 [
   {
+    "name": "Data Structures & Algorithms Basics",
+    "category": "Foundational",
+    "diagramType": "none",
+    "explanation": "A data structure is just a way of organizing and storing data so you can work with it efficiently — a list, a stack, a tree, whatever shape fits the problem. An algorithm is the step-by-step recipe for solving a problem using that data — sorting a list, finding the shortest path. They're two sides of the same coin: the structure you pick determines which algorithms are even possible, and how fast they run. Get a sorted array and binary search paired up correctly, and a problem that looked hard becomes almost mechanical.",
+    "timeComplexity": "Depends entirely on the structure/algorithm chosen",
+    "spaceComplexity": "Depends entirely on the structure/algorithm chosen",
+    "difficultyLevel": "Easy",
+    "companyTags": "Google,Amazon,Microsoft,Meta"
+  },
+  {
+    "name": "Complexity Analysis (Big-O)",
+    "category": "Foundational",
+    "diagramType": "none",
+    "explanation": "Time complexity measures how an algorithm's running time grows as input size grows; space complexity measures how much extra memory it needs. Big-O notation describes that growth rate, not an exact stopwatch time: O(1) stays flat no matter the input, O(log n) barely grows even as input doubles, O(n) grows in a straight line, O(n log n) is slightly worse than linear, O(n^2) blows up fast on nested loops. Knowing this lets you predict how code behaves on a huge input before you ever run it — the whole basis of performance optimization and system design decisions.",
+    "timeComplexity": "N/A — this topic is the tool used to measure other topics",
+    "spaceComplexity": "N/A — this topic is the tool used to measure other topics",
+    "difficultyLevel": "Easy",
+    "companyTags": "Google,Amazon,Microsoft,Meta,Apple"
+  },
+  {
     "name": "Arrays & Strings",
     "category": "Foundational",
     "explanation": "Think of an array as a row of numbered boxes sitting right next to each other in memory. Because they're numbered, you can jump straight to any box instantly — that's what makes arrays fast to read from. A string is just an array of characters. Almost every interview problem starts here, so getting comfortable scanning through arrays is step one.",

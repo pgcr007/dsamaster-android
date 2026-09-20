@@ -1,0 +1,415 @@
+[
+  {
+    "moduleTitle": "Arrays & Strings",
+    "lessons": [
+      {
+        "title": "What Is an Array?",
+        "content": "An array stores elements in contiguous memory slots, numbered from 0. Because the slots sit right next to each other, the computer can jump straight to any index by computing base_address + index * element_size — no searching involved. That's what makes reading nums[7] just as fast as reading nums[0], no matter how big the array is. The trade-off: inserting or removing an element in the middle means shifting every element after it, which costs O(n).",
+        "diagramType": "array",
+        "conceptChecks": [
+          {
+            "question": "Why is accessing an element by index O(1) in an array?",
+            "options": [
+              "Because the array is sorted",
+              "Because its memory address can be computed directly from the index",
+              "Because arrays cache the last accessed element",
+              "Because arrays use a hash function on the index"
+            ],
+            "correctOptionIndex": 1,
+            "explanation": "Elements sit at contiguous addresses, so index i's address is just base_address + i * element_size — a calculation, not a search."
+          },
+          {
+            "question": "What is the time complexity of inserting an element at the beginning of an array of size n?",
+            "options": ["O(1)", "O(log n)", "O(n)", "O(n^2)"],
+            "correctOptionIndex": 2,
+            "explanation": "Every existing element has to shift one slot to the right to make room, which touches all n elements."
+          }
+        ]
+      },
+      {
+        "title": "Strings as Character Arrays",
+        "content": "A string is essentially an array of characters, which is why so many array techniques — two pointers, sliding window, prefix sums — apply directly to string problems. One key gotcha: in many languages (Java, Python, Kotlin) strings are immutable. Every 'modification' actually builds a brand-new string, so concatenating in a tight loop is quietly O(n^2) unless you use a mutable builder.",
+        "diagramType": "array",
+        "conceptChecks": [
+          {
+            "question": "Why do string problems often reuse array techniques like two pointers?",
+            "options": [
+              "Strings are always stored on the heap",
+              "A string is fundamentally an array of characters",
+              "Strings are always sorted",
+              "Strings can't be indexed"
+            ],
+            "correctOptionIndex": 1,
+            "explanation": "Indexable, contiguous character storage is exactly what makes array techniques transfer over."
+          },
+          {
+            "question": "In many languages, why is repeatedly concatenating strings in a loop inefficient?",
+            "options": [
+              "Because strings are immutable and each concatenation creates a new string",
+              "Because strings are stored in a linked list",
+              "Because concatenation requires sorting",
+              "Because strings can only be modified in place"
+            ],
+            "correctOptionIndex": 0,
+            "explanation": "Each '+' allocates a new string and copies both old strings into it, so n concatenations cost O(n^2) total."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "moduleTitle": "Two Pointers",
+    "lessons": [
+      {
+        "title": "The Two-Pointer Technique",
+        "content": "Instead of nested loops checking every pair (O(n^2)), two pointers walk through the array with two indices — either moving toward each other from both ends, or moving in the same direction at different speeds — cutting the work to O(n). This works when there's a monotonic property to exploit, most commonly on a sorted array: if the current pair's sum is too big, moving the right pointer left only makes it smaller; too small, moving the left pointer right only makes it bigger.",
+        "diagramType": "array",
+        "conceptChecks": [
+          {
+            "question": "What lets two pointers replace a nested loop and drop from O(n^2) to O(n)?",
+            "options": [
+              "The array is stored as a linked list",
+              "A monotonic property lets you rule out a whole range of pairs after one comparison",
+              "Two pointers always sort the array first",
+              "Two pointers only work on strings"
+            ],
+            "correctOptionIndex": 1,
+            "explanation": "Each comparison eliminates a range of remaining pairs, so the total work is linear instead of quadratic."
+          },
+          {
+            "question": "In the classic 'pair sum equals target' problem on a sorted array, what do you do when the current pair's sum is too small?",
+            "options": [
+              "Move the left pointer right, to increase the sum",
+              "Move the right pointer right",
+              "Restart from the beginning",
+              "Swap the two pointers"
+            ],
+            "correctOptionIndex": 0,
+            "explanation": "Moving left rightward brings in a bigger value, increasing the sum toward the target."
+          }
+        ]
+      },
+      {
+        "title": "Sliding Window",
+        "content": "Sliding window is two pointers with a twist: instead of both ends of the array, they mark the boundaries of a 'window' that expands and shrinks as it slides across the data. Expand the right edge to include more elements; shrink the left edge when the window breaks some condition (too big a sum, a repeated character, etc.). This avoids recomputing from scratch for every window position — you just add what enters and remove what leaves.",
+        "diagramType": "array",
+        "conceptChecks": [
+          {
+            "question": "What's the key efficiency idea behind sliding window?",
+            "options": [
+              "Recompute the entire window's answer from scratch every time it moves",
+              "Only add what newly enters the window and remove what leaves it, instead of recomputing",
+              "Sort the array before sliding",
+              "Use recursion to check every possible window"
+            ],
+            "correctOptionIndex": 1,
+            "explanation": "Incremental add/remove is what keeps sliding window at O(n) instead of O(n * window size)."
+          },
+          {
+            "question": "When would you shrink the window from the left?",
+            "options": [
+              "Every single step, regardless of the window's contents",
+              "When the window currently violates the condition you're maintaining (e.g. sum too large, a duplicate found)",
+              "Only after reaching the end of the array",
+              "Never — sliding window only expands"
+            ],
+            "correctOptionIndex": 1,
+            "explanation": "Shrinking is how the window gets back to a valid state once expanding the right edge broke the condition."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "moduleTitle": "Hashing & HashMaps",
+    "lessons": [
+      {
+        "title": "Why HashMaps Are Fast",
+        "content": "A HashMap stores key-value pairs by running each key through a hash function that converts it into an array index, then storing the value there. That's what gives average O(1) insert, lookup, and delete — no scanning required. Two different keys can hash to the same index (a collision); a good implementation handles this by storing the colliding keys together at that slot (e.g. in a small list) and comparing keys directly when needed. Worst case, with a bad hash function or too many collisions, this degrades to O(n).",
+        "conceptChecks": [
+          {
+            "question": "What gives a well-implemented HashMap its average O(1) lookup time?",
+            "options": [
+              "It keeps keys sorted",
+              "A hash function maps keys almost directly to a storage index",
+              "It uses binary search internally",
+              "It stores all keys in a linked list"
+            ],
+            "correctOptionIndex": 1,
+            "explanation": "The hash function computes a storage location directly from the key, skipping the need to search."
+          },
+          {
+            "question": "What happens when two different keys hash to the same index (a collision)?",
+            "options": [
+              "The second key silently overwrites the first",
+              "The HashMap immediately resizes to twice its size",
+              "The colliding keys are stored together at that index and compared individually when needed",
+              "The insert operation fails"
+            ],
+            "correctOptionIndex": 2,
+            "explanation": "Collision handling (chaining or similar) keeps both keys retrievable instead of losing one."
+          }
+        ]
+      },
+      {
+        "title": "When HashMaps Are the Right Tool",
+        "content": "Watch for phrases like 'have I seen this before', 'count occurrences of', or 'need O(1) lookup' — these almost always point to a HashMap or HashSet. They're the wrong tool when order matters (a plain HashMap gives no ordering guarantee — use a LinkedHashMap or TreeMap if you need one) or when you need range queries (e.g. 'all keys between X and Y'), which need a sorted structure instead.",
+        "conceptChecks": [
+          {
+            "question": "You need to check if a value has appeared before while scanning a list once — what's the go-to structure?",
+            "options": [
+              "A sorted array with binary search on every check",
+              "A HashSet, since membership checks are O(1) on average",
+              "A doubly linked list",
+              "A binary tree"
+            ],
+            "correctOptionIndex": 1,
+            "explanation": "HashSet membership checks are O(1) on average, which is exactly what a single-pass 'seen before' check needs."
+          },
+          {
+            "question": "Why is a plain HashMap usually a poor fit when you need results returned in sorted order?",
+            "options": [
+              "HashMaps can't store more than 100 elements",
+              "HashMaps don't preserve or guarantee any particular key ordering",
+              "HashMaps are slower than arrays for every single operation",
+              "HashMaps can only store strings"
+            ],
+            "correctOptionIndex": 1,
+            "explanation": "A plain HashMap gives no ordering guarantee, so you'd need a sort afterward or a different structure entirely."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "moduleTitle": "DSA Foundations Overview",
+    "lessons": [
+      {
+        "title": "What Are Data Structures & Algorithms?",
+        "content": "A data structure is a way of organizing and storing data so it can be accessed and modified efficiently — a list, a stack, a tree. An algorithm is a step-by-step procedure or formula for solving a problem — sorting a list, finding a path. They're two sides of the same coin: the data structure you pick determines which algorithms are fast. A sorted array makes binary search possible; an unsorted one doesn't.",
+        "codeExample": "# A data structure (Python list) holding data,\n# and an algorithm (built-in sort) operating on it\nscores = [88, 42, 95, 67, 71]\n\nsorted_scores = sorted(scores)          # algorithm: Timsort, O(n log n)\nprint(sorted_scores)                    # [42, 67, 71, 88, 95]\nprint(scores[2])                        # data structure: O(1) index access -> 95",
+        "conceptChecks": []
+      }
+    ]
+  },
+  {
+    "moduleTitle": "Complexity Analysis",
+    "lessons": [
+      {
+        "title": "Time and Space Complexity (Big-O)",
+        "content": "Time complexity measures how an algorithm's running time grows as a function of input size. Space complexity measures how much extra working memory it needs. Both are expressed with Big-O notation, which describes the growth rate, not an exact time: O(1) constant, O(log n) logarithmic, O(n) linear, O(n log n) linearithmic, O(n^2) quadratic. Knowing these lets you predict how code will behave on larger inputs before you run it — the basis for performance optimization, resource management, and system design decisions.",
+        "codeExample": "def get_first_element(items):        # O(1) - constant time, one operation\n    return items[0]\n\ndef sum_all_elements(items):         # O(n) - linear time, grows with input size\n    total = 0\n    for item in items:\n        total += item\n    return total\n\ndef has_duplicate_pair(items):       # O(n^2) - nested loop over every pair\n    for i in range(len(items)):\n        for j in range(i + 1, len(items)):\n            if items[i] == items[j]:\n                return True\n    return False",
+        "conceptChecks": []
+      }
+    ]
+  },
+  {
+    "moduleTitle": "Core Data Structures",
+    "lessons": [
+      {
+        "title": "Arrays in Practice",
+        "content": "Use cases: storing a collection of elements, implementing other structures like stacks and queues, and building dynamic programming tables. Python's list is a dynamic array — it resizes automatically, but appending near the front or middle still shifts elements.",
+        "diagramType": "array",
+        "codeExample": "nums = [10, 20, 30, 40]\nprint(nums[2])          # O(1) access -> 30\nnums.append(50)         # add to the end, O(1) amortized\nnums.insert(0, 5)       # insert at front -> shifts every element, O(n)\nprint(nums)             # [5, 10, 20, 30, 40, 50]",
+        "conceptChecks": []
+      },
+      {
+        "title": "Linked Lists in Practice",
+        "content": "A linked list is a chain of nodes, each pointing to the next. Use cases: dynamic memory allocation (no need to know the size upfront), implementing stacks/queues, and undo functionality — each undo step is just 'move to the previous node'.",
+        "codeExample": "class Node:\n    def __init__(self, value):\n        self.value = value\n        self.next = None\n\nclass LinkedList:\n    def __init__(self):\n        self.head = None\n\n    def append(self, value):\n        new_node = Node(value)\n        if not self.head:\n            self.head = new_node\n            return\n        current = self.head\n        while current.next:\n            current = current.next\n        current.next = new_node\n\n    def to_list(self):\n        result, current = [], self.head\n        while current:\n            result.append(current.value)\n            current = current.next\n        return result\n\nll = LinkedList()\nll.append(1); ll.append(2); ll.append(3)\nprint(ll.to_list())   # [1, 2, 3]",
+        "conceptChecks": []
+      },
+      {
+        "title": "Stacks in Practice",
+        "content": "A stack is Last-In-First-Out (LIFO). Use cases: expression evaluation and syntax parsing (matching brackets), backtracking algorithms, and managing function calls in recursion — every recursive call pushes a new frame onto the call stack.",
+        "diagramType": "stack",
+        "codeExample": "stack = []\nstack.append(1)   # push\nstack.append(2)\nstack.append(3)\nprint(stack.pop())  # 3 - Last In, First Out\nprint(stack)         # [1, 2]",
+        "conceptChecks": []
+      },
+      {
+        "title": "Queues in Practice",
+        "content": "A queue is First-In-First-Out (FIFO). Use cases: task scheduling, breadth-first search, and managing requests in the order they arrive — the first task queued is the first one processed.",
+        "diagramType": "queue",
+        "codeExample": "from collections import deque\n\nqueue = deque()\nqueue.append(\"task1\")   # enqueue\nqueue.append(\"task2\")\nqueue.append(\"task3\")\nprint(queue.popleft())  # \"task1\" - First In, First Out\nprint(queue)             # deque(['task2', 'task3'])",
+        "conceptChecks": []
+      },
+      {
+        "title": "Trees in Practice",
+        "content": "A tree is a hierarchical structure of parent-child nodes. Use cases: representing file systems, binary search trees for efficient searching and sorting, and decision-making algorithms (each node is a decision point).",
+        "diagramType": "tree",
+        "codeExample": "class TreeNode:\n    def __init__(self, value):\n        self.value = value\n        self.left = None\n        self.right = None\n\nroot = TreeNode(10)\nroot.left = TreeNode(5)\nroot.right = TreeNode(15)\n\ndef inorder(node):\n    if node:\n        inorder(node.left)\n        print(node.value, end=\" \")\n        inorder(node.right)\n\ninorder(root)   # 5 10 15 (sorted order for a BST)",
+        "conceptChecks": []
+      },
+      {
+        "title": "Graphs in Practice",
+        "content": "A graph is a set of nodes connected by edges, which can be directed or weighted. Use cases: social network analysis, shortest-path routing in maps, and dependency resolution (e.g. package managers deciding install order).",
+        "diagramType": "graph",
+        "codeExample": "graph = {\n    \"A\": [\"B\", \"C\"],\n    \"B\": [\"D\"],\n    \"C\": [\"D\"],\n    \"D\": []\n}\n\ndef has_path(graph, start, end, visited=None):\n    visited = visited or set()\n    if start == end:\n        return True\n    visited.add(start)\n    for neighbor in graph[start]:\n        if neighbor not in visited and has_path(graph, neighbor, end, visited):\n            return True\n    return False\n\nprint(has_path(graph, \"A\", \"D\"))   # True",
+        "conceptChecks": []
+      },
+      {
+        "title": "Hash Tables in Practice",
+        "content": "A hash table maps keys to values using a hash function, giving average O(1) lookup. Use cases: implementing associative arrays, database indexing, and caching — storing an expensive result keyed by its input so it's never recomputed.",
+        "codeExample": "cache = {}                 # Python dict = hash table\ncache[\"user_1\"] = {\"name\": \"Asha\", \"score\": 92}\ncache[\"user_2\"] = {\"name\": \"Ravi\", \"score\": 87}\n\nprint(cache[\"user_1\"])          # O(1) average lookup\nprint(\"user_3\" in cache)        # O(1) membership check -> False",
+        "conceptChecks": []
+      }
+    ]
+  },
+  {
+    "moduleTitle": "Sorting Algorithms",
+    "lessons": [
+      {
+        "title": "Bubble Sort",
+        "content": "Repeatedly steps through the list, swapping adjacent elements that are out of order, until nothing needs swapping. Simple to understand and implement, but O(n^2) — inefficient for large datasets. Mostly useful for teaching, or tiny inputs.",
+        "codeExample": "def bubble_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        for j in range(n - i - 1):\n            if arr[j] > arr[j + 1]:\n                arr[j], arr[j + 1] = arr[j + 1], arr[j]\n    return arr\n\nprint(bubble_sort([5, 2, 9, 1, 5, 6]))   # [1, 2, 5, 5, 6, 9]",
+        "conceptChecks": []
+      },
+      {
+        "title": "Merge Sort",
+        "content": "A divide-and-conquer algorithm: split the array in half recursively until each piece has one element, then merge the pieces back together in sorted order. O(n log n) and stable (equal elements keep their relative order), which makes it a solid default for large datasets.",
+        "codeExample": "def merge_sort(arr):\n    if len(arr) <= 1:\n        return arr\n    mid = len(arr) // 2\n    left = merge_sort(arr[:mid])\n    right = merge_sort(arr[mid:])\n    return merge(left, right)\n\ndef merge(left, right):\n    result, i, j = [], 0, 0\n    while i < len(left) and j < len(right):\n        if left[i] <= right[j]:\n            result.append(left[i]); i += 1\n        else:\n            result.append(right[j]); j += 1\n    return result + left[i:] + right[j:]\n\nprint(merge_sort([5, 2, 9, 1, 5, 6]))   # [1, 2, 5, 5, 6, 9]",
+        "conceptChecks": []
+      },
+      {
+        "title": "Quick Sort",
+        "content": "Also divide-and-conquer: pick a pivot, partition the array into elements smaller and larger than it, then recursively sort each side. Average O(n log n) and generally faster in practice than Merge Sort due to better cache behavior, though not stable and worst-case O(n^2) on a bad pivot choice.",
+        "codeExample": "def quick_sort(arr):\n    if len(arr) <= 1:\n        return arr\n    pivot = arr[len(arr) // 2]\n    left = [x for x in arr if x < pivot]\n    middle = [x for x in arr if x == pivot]\n    right = [x for x in arr if x > pivot]\n    return quick_sort(left) + middle + quick_sort(right)\n\nprint(quick_sort([5, 2, 9, 1, 5, 6]))   # [1, 2, 5, 5, 6, 9]",
+        "conceptChecks": []
+      },
+      {
+        "title": "Insertion Sort",
+        "content": "Builds the final sorted array one element at a time, inserting each new element into its correct position among the already-sorted elements. O(n^2) worst case, but very efficient for small or nearly-sorted datasets — often used as the base case inside faster hybrid sorts.",
+        "codeExample": "def insertion_sort(arr):\n    for i in range(1, len(arr)):\n        key = arr[i]\n        j = i - 1\n        while j >= 0 and arr[j] > key:\n            arr[j + 1] = arr[j]\n            j -= 1\n        arr[j + 1] = key\n    return arr\n\nprint(insertion_sort([5, 2, 9, 1, 5, 6]))   # [1, 2, 5, 5, 6, 9]",
+        "conceptChecks": []
+      }
+    ]
+  },
+  {
+    "moduleTitle": "Searching Algorithms",
+    "lessons": [
+      {
+        "title": "Linear Search",
+        "content": "Checks every element in order until it finds a match, or reaches the end. O(n), but it's the only option on unsorted data — there's no shortcut without some structure to exploit.",
+        "codeExample": "def linear_search(arr, target):\n    for i, value in enumerate(arr):\n        if value == target:\n            return i\n    return -1\n\nprint(linear_search([4, 2, 7, 1], 7))   # 2",
+        "conceptChecks": []
+      },
+      {
+        "title": "Binary Search",
+        "content": "On a sorted array, repeatedly checks the middle element and discards the half that can't contain the target. O(log n) — doubling the input size only adds one more comparison. This is the payoff for keeping data sorted.",
+        "codeExample": "def binary_search(arr, target):\n    low, high = 0, len(arr) - 1\n    while low <= high:\n        mid = (low + high) // 2\n        if arr[mid] == target:\n            return mid\n        elif arr[mid] < target:\n            low = mid + 1\n        else:\n            high = mid - 1\n    return -1\n\nprint(binary_search([1, 3, 5, 7, 9, 11], 7))   # 3",
+        "diagramType": "binarysearch",
+        "conceptChecks": []
+      }
+    ]
+  },
+  {
+    "moduleTitle": "Graph Algorithms",
+    "lessons": [
+      {
+        "title": "Depth-First Search (DFS)",
+        "content": "Explores as far as possible down one branch before backtracking, using recursion or an explicit stack. Use cases: exploring all reachable nodes, detecting cycles, and topological sorting.",
+        "diagramType": "graph",
+        "codeExample": "def dfs(graph, start, visited=None):\n    visited = visited or set()\n    visited.add(start)\n    print(start, end=\" \")\n    for neighbor in graph[start]:\n        if neighbor not in visited:\n            dfs(graph, neighbor, visited)\n    return visited\n\ngraph = {\"A\": [\"B\", \"C\"], \"B\": [\"D\"], \"C\": [\"D\"], \"D\": []}\ndfs(graph, \"A\")   # A B D C",
+        "conceptChecks": []
+      },
+      {
+        "title": "Breadth-First Search (BFS)",
+        "content": "Explores level by level, visiting all of a node's neighbors before moving further out, using a queue. Use case: finding the shortest path in an unweighted graph — the first time you reach a node is guaranteed to be via the shortest route.",
+        "diagramType": "graph",
+        "codeExample": "from collections import deque\n\ndef bfs(graph, start):\n    visited = {start}\n    queue = deque([start])\n    order = []\n    while queue:\n        node = queue.popleft()\n        order.append(node)\n        for neighbor in graph[node]:\n            if neighbor not in visited:\n                visited.add(neighbor)\n                queue.append(neighbor)\n    return order\n\ngraph = {\"A\": [\"B\", \"C\"], \"B\": [\"D\"], \"C\": [\"D\"], \"D\": []}\nprint(bfs(graph, \"A\"))   # ['A', 'B', 'C', 'D']",
+        "conceptChecks": []
+      },
+      {
+        "title": "Dijkstra's Algorithm",
+        "content": "Finds the shortest path from a start node to every other node in a weighted graph with non-negative edge weights, using a priority queue to always expand the closest unvisited node next. Use case: network routing, where edge weights represent latency or distance.",
+        "diagramType": "graph",
+        "codeExample": "import heapq\n\ndef dijkstra(graph, start):\n    distances = {node: float(\"inf\") for node in graph}\n    distances[start] = 0\n    pq = [(0, start)]\n\n    while pq:\n        current_dist, node = heapq.heappop(pq)\n        if current_dist > distances[node]:\n            continue\n        for neighbor, weight in graph[node]:\n            distance = current_dist + weight\n            if distance < distances[neighbor]:\n                distances[neighbor] = distance\n                heapq.heappush(pq, (distance, neighbor))\n    return distances\n\ngraph = {\n    \"A\": [(\"B\", 1), (\"C\", 4)],\n    \"B\": [(\"C\", 2), (\"D\", 5)],\n    \"C\": [(\"D\", 1)],\n    \"D\": []\n}\nprint(dijkstra(graph, \"A\"))   # {'A': 0, 'B': 1, 'C': 3, 'D': 4}",
+        "conceptChecks": []
+      }
+    ]
+  },
+  {
+    "moduleTitle": "Dynamic Programming",
+    "lessons": [
+      {
+        "title": "Memoization",
+        "content": "A top-down DP technique: cache the result of each expensive function call so repeated calls with the same input return instantly instead of recomputing. Turns naive recursive solutions with exponential blow-up (like plain recursive Fibonacci) into fast ones.",
+        "codeExample": "def fib_memo(n, cache=None):\n    cache = cache or {}\n    if n in cache:\n        return cache[n]\n    if n <= 1:\n        return n\n    cache[n] = fib_memo(n - 1, cache) + fib_memo(n - 2, cache)\n    return cache[n]\n\nprint(fib_memo(30))   # 832040 - instant, vs. exponential without caching",
+        "conceptChecks": []
+      },
+      {
+        "title": "Tabulation",
+        "content": "A bottom-up DP technique: build a table of subproblem results iteratively, starting from the smallest subproblems, so each larger answer is assembled from already-known smaller ones. Avoids recursion overhead entirely.",
+        "codeExample": "def fib_tabulation(n):\n    table = [0, 1] + [0] * (n - 1)\n    for i in range(2, n + 1):\n        table[i] = table[i - 1] + table[i - 2]\n    return table[n]\n\nprint(fib_tabulation(30))   # 832040",
+        "conceptChecks": []
+      }
+    ]
+  },
+  {
+    "moduleTitle": "Greedy Algorithms",
+    "lessons": [
+      {
+        "title": "Greedy Algorithms",
+        "content": "A greedy algorithm makes the locally optimal choice at each step, hoping it leads to a globally optimal solution — and for certain problems (Huffman coding for data compression, activity selection, Kruskal's and Prim's algorithms for minimum spanning trees) it provably does. The classic example below: pick activities by earliest finish time to fit as many non-overlapping activities as possible.",
+        "codeExample": "def activity_selection(activities):\n    # activities: list of (start, end), will be sorted by end time\n    activities = sorted(activities, key=lambda a: a[1])\n    selected = [activities[0]]\n    last_end = activities[0][1]\n    for start, end in activities[1:]:\n        if start >= last_end:\n            selected.append((start, end))\n            last_end = end\n    return selected\n\nactivities = [(1, 3), (2, 4), (3, 5), (0, 6), (5, 7)]\nprint(activity_selection(activities))   # [(1, 3), (3, 5), (5, 7)]",
+        "conceptChecks": []
+      }
+    ]
+  },
+  {
+    "moduleTitle": "Key Problems & Patterns",
+    "lessons": [
+      {
+        "title": "Arrays: Maximum Subarray (Kadane's Algorithm)",
+        "content": "Find the contiguous subarray with the largest sum. Kadane's insight: at each position, either extend the previous subarray or start fresh from here — whichever gives a bigger sum. O(n), single pass. Use cases: financial data analysis (best trading window), game development (best streak).",
+        "codeExample": "def max_subarray(nums):\n    best = current = nums[0]\n    for num in nums[1:]:\n        current = max(num, current + num)\n        best = max(best, current)\n    return best\n\nprint(max_subarray([-2, 1, -3, 4, -1, 2, 1, -5, 4]))   # 6  ([4, -1, 2, 1])",
+        "conceptChecks": []
+      },
+      {
+        "title": "Arrays: Two Sum",
+        "content": "Find two numbers in an array that add up to a target. The naive approach checks every pair, O(n^2); a hash map remembers what you've seen so each element only needs one O(1) lookup for its complement, giving O(n) overall.",
+        "codeExample": "def two_sum(nums, target):\n    seen = {}\n    for i, num in enumerate(nums):\n        complement = target - num\n        if complement in seen:\n            return [seen[complement], i]\n        seen[num] = i\n    return []\n\nprint(two_sum([2, 7, 11, 15], 9))   # [0, 1]",
+        "conceptChecks": []
+      },
+      {
+        "title": "Linked Lists: Detect a Cycle",
+        "content": "Floyd's cycle detection ('tortoise and hare'): move one pointer one step at a time and another two steps at a time. If there's a cycle, the fast pointer will eventually lap the slow one and they'll meet; if there's no cycle, the fast pointer reaches the end first. O(n) time, O(1) space.",
+        "codeExample": "class Node:\n    def __init__(self, value):\n        self.value = value\n        self.next = None\n\ndef has_cycle(head):\n    slow = fast = head\n    while fast and fast.next:\n        slow = slow.next\n        fast = fast.next.next\n        if slow is fast:\n            return True\n    return False",
+        "conceptChecks": []
+      },
+      {
+        "title": "Linked Lists: Reverse a Linked List",
+        "content": "Walk the list once, and at each node flip its `next` pointer to point backward instead of forward, tracking the previous node as you go. O(n) time, O(1) extra space.",
+        "codeExample": "def reverse_linked_list(head):\n    prev = None\n    current = head\n    while current:\n        next_node = current.next\n        current.next = prev\n        prev = current\n        current = next_node\n    return prev",
+        "conceptChecks": []
+      },
+      {
+        "title": "Stacks & Queues: Implement a Queue Using Two Stacks",
+        "content": "A classic problem that shows how the two structures relate: push new items onto an 'in' stack; when you need to dequeue, pour everything into an 'out' stack (reversing the order) if it's empty, then pop from that. Each element moves between stacks at most once, so operations are O(1) amortized.",
+        "diagramType": "queue",
+        "codeExample": "class QueueUsingStacks:\n    def __init__(self):\n        self.in_stack = []\n        self.out_stack = []\n\n    def enqueue(self, value):\n        self.in_stack.append(value)\n\n    def dequeue(self):\n        if not self.out_stack:\n            while self.in_stack:\n                self.out_stack.append(self.in_stack.pop())\n        return self.out_stack.pop() if self.out_stack else None\n\nq = QueueUsingStacks()\nq.enqueue(1); q.enqueue(2); q.enqueue(3)\nprint(q.dequeue())   # 1 (FIFO, even though only stacks are used)",
+        "conceptChecks": []
+      },
+      {
+        "title": "Trees: Traversals and Lowest Common Ancestor",
+        "content": "Inorder (left, node, right), preorder (node, left, right), and postorder (left, right, node) traversals visit every node in a different order — inorder gives sorted output on a BST. The Lowest Common Ancestor (LCA) of two nodes is the deepest node that has both as descendants, found recursively: if a node matches either target, or both targets are found in different subtrees, that node is the answer.",
+        "diagramType": "tree",
+        "codeExample": "class TreeNode:\n    def __init__(self, value, left=None, right=None):\n        self.value = value\n        self.left = left\n        self.right = right\n\ndef lowest_common_ancestor(root, p, q):\n    if root is None or root.value == p or root.value == q:\n        return root\n    left = lowest_common_ancestor(root.left, p, q)\n    right = lowest_common_ancestor(root.right, p, q)\n    if left and right:\n        return root\n    return left or right",
+        "conceptChecks": []
+      },
+      {
+        "title": "Graphs: Detecting a Cycle",
+        "content": "In a directed graph, a cycle exists if DFS ever revisits a node that's currently on the active recursion path (not just previously visited overall). Tracking a separate 'in current path' set alongside the usual 'visited' set is what distinguishes 'already fully explored, no cycle' from 'currently being explored, cycle found'.",
+        "diagramType": "graph",
+        "codeExample": "def has_cycle(graph):\n    visited, in_stack = set(), set()\n\n    def dfs(node):\n        visited.add(node)\n        in_stack.add(node)\n        for neighbor in graph[node]:\n            if neighbor in in_stack:\n                return True\n            if neighbor not in visited and dfs(neighbor):\n                return True\n        in_stack.remove(node)\n        return False\n\n    return any(node not in visited and dfs(node) for node in graph)\n\ngraph = {\"A\": [\"B\"], \"B\": [\"C\"], \"C\": [\"A\"]}\nprint(has_cycle(graph))   # True",
+        "conceptChecks": []
+      },
+      {
+        "title": "Dynamic Programming: Longest Common Subsequence",
+        "content": "Find the longest sequence of characters that appears (in order, not necessarily contiguous) in both strings. A 2D table dp[i][j] holds the LCS length of the first i characters of one string and the first j of the other — if the characters match, extend the diagonal; otherwise take the best of skipping one character from either string. Use cases: text diffing, resource allocation, sequence alignment (also the basis for the Knapsack problem's table-building approach).",
+        "codeExample": "def longest_common_subsequence(a, b):\n    dp = [[0] * (len(b) + 1) for _ in range(len(a) + 1)]\n    for i in range(1, len(a) + 1):\n        for j in range(1, len(b) + 1):\n            if a[i - 1] == b[j - 1]:\n                dp[i][j] = dp[i - 1][j - 1] + 1\n            else:\n                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])\n    return dp[len(a)][len(b)]\n\nprint(longest_common_subsequence(\"abcde\", \"ace\"))   # 3",
+        "conceptChecks": []
+      }
+    ]
+  }
+]

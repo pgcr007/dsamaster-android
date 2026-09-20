@@ -22,7 +22,8 @@ data class SettingsUiState(
     val reminderHour: Int = 19,
     val reminderMinute: Int = 0,
     val weeklySummaryEnabled: Boolean = true,
-    val themeMode: String = UserPreferences.DEFAULT_THEME_MODE
+    val themeMode: String = UserPreferences.DEFAULT_THEME_MODE,
+    val learningGateDebugUnlocked: Boolean = UserPreferences.DEFAULT_LEARNING_GATE_DEBUG_UNLOCKED
 )
 
 class SettingsViewModel(
@@ -37,7 +38,8 @@ class SettingsViewModel(
         userPreferences.reminderHour,
         userPreferences.reminderMinute,
         userPreferences.weeklySummaryEnabled,
-        userPreferences.themeMode
+        userPreferences.themeMode,
+        userPreferences.learningGateDebugUnlocked
     ) { values ->
         SettingsUiState(
             dailyGoal = values[0] as Int,
@@ -45,7 +47,8 @@ class SettingsViewModel(
             reminderHour = values[2] as Int,
             reminderMinute = values[3] as Int,
             weeklySummaryEnabled = values[4] as Boolean,
-            themeMode = values[5] as String
+            themeMode = values[5] as String,
+            learningGateDebugUnlocked = values[6] as Boolean
         )
     }.stateIn(
         scope = viewModelScope,
@@ -86,6 +89,12 @@ class SettingsViewModel(
     fun setThemeMode(mode: String) {
         viewModelScope.launch {
             userPreferences.setThemeMode(mode)
+        }
+    }
+
+    fun setLearningGateDebugUnlocked(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferences.setLearningGateDebugUnlocked(enabled)
         }
     }
 

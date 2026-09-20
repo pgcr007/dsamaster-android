@@ -26,6 +26,10 @@ class UserPreferences(private val context: Context) {
         const val DEFAULT_REMINDER_MINUTE = 0
 
         private val WEEKLY_SUMMARY_ENABLED_KEY = booleanPreferencesKey("weekly_summary_enabled")
+
+        private val LEARNING_GATE_DEBUG_UNLOCKED_KEY = booleanPreferencesKey("learning_gate_debug_unlocked")
+        const val DEFAULT_LEARNING_GATE_DEBUG_UNLOCKED = false
+
         const val DEFAULT_WEEKLY_SUMMARY_ENABLED = true
 
         private val THEME_MODE_KEY = stringPreferencesKey("theme_mode")
@@ -33,7 +37,6 @@ class UserPreferences(private val context: Context) {
         const val THEME_MODE_LIGHT = "LIGHT"
         const val THEME_MODE_DARK = "DARK"
         const val DEFAULT_THEME_MODE = THEME_MODE_SYSTEM
-
         private val HAS_SEEN_ONBOARDING_KEY = booleanPreferencesKey("has_seen_onboarding")
         const val DEFAULT_HAS_SEEN_ONBOARDING = false
 
@@ -88,6 +91,22 @@ class UserPreferences(private val context: Context) {
     suspend fun setWeeklySummaryEnabled(enabled: Boolean) {
         context.dataStore.edit { prefs ->
             prefs[WEEKLY_SUMMARY_ENABLED_KEY] = enabled
+        }
+    }
+
+    /**
+     * Dev-only override: when true, Problem Bank and Mock Interview are
+     * unlocked regardless of Foundations progress. Never touches
+     * LearningProgress rows — flipping it off instantly restores the real
+     * gate state exactly where it was.
+     */
+    val learningGateDebugUnlocked: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[LEARNING_GATE_DEBUG_UNLOCKED_KEY] ?: DEFAULT_LEARNING_GATE_DEBUG_UNLOCKED
+    }
+
+    suspend fun setLearningGateDebugUnlocked(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[LEARNING_GATE_DEBUG_UNLOCKED_KEY] = enabled
         }
     }
 

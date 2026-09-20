@@ -61,6 +61,7 @@ import com.dsamaster.app.data.preferences.UserPreferences
 import com.dsamaster.app.ui.theme.TealAccent
 import com.dsamaster.app.ui.viewmodel.SettingsViewModel
 import com.dsamaster.app.ui.viewmodel.SettingsViewModelFactory
+import androidx.compose.material.icons.filled.BugReport
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -187,6 +188,14 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                 Spacer(modifier = Modifier.height(12.dp))
                 BackupMessageCard(message = message, onDismiss = viewModel::clearBackupMessage)
             }
+        }
+        SettingsSectionCard(title = "Developer", icon = Icons.Filled.BugReport) {
+            SettingsSwitchRow(
+                title = "Unlock everything",
+                subtitle = "Bypass the Foundations gate for Problem Bank and Mock Interview — testing only, doesn't touch your real lesson progress",
+                checked = uiState.learningGateDebugUnlocked,
+                onCheckedChange = { viewModel.setLearningGateDebugUnlocked(it) }
+            )
         }
     }
 

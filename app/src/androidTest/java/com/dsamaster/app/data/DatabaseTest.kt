@@ -3,6 +3,11 @@ package com.dsamaster.app.data
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.dsamaster.app.data.entity.ConceptCheck
+import com.dsamaster.app.data.entity.Lesson
+import com.dsamaster.app.data.entity.LearningModule
+import com.dsamaster.app.data.entity.LearningPath
+import com.dsamaster.app.data.entity.LearningProgress
 import com.dsamaster.app.data.entity.Note
 import com.dsamaster.app.data.entity.Problem
 import com.dsamaster.app.data.entity.StreakEntry
@@ -12,6 +17,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -149,5 +155,130 @@ class DatabaseTest {
 
         assertEquals(1, loaded.size)
         assertEquals("Remember: in-order traversal gives sorted output for BST", loaded[0].userNote)
+    }
+
+    // --- Phase 14: Learning Module ---
+
+    @Test
+    fun insertAndReadLearningPath() = runBlocking {
+        val path = LearningPath(name = "DSA Foundations", description = "Basics first", orderIndex = 0)
+        val id = db.learningPathDao().insertPath(path)
+        val loaded = db.learningPathDao().getPathById(id).first()
+
+        assertEquals("DSA Foundations", loaded?.name)
+    }
+
+    @Test
+    fun insertAndReadLearningModuleAndLesson() = runBlocking {
+        val pathId = db.learningPathDao().insertPath(
+            LearningPath(name = "DSA Foundations", description = "Basics first", orderIndex = 0)
+        )
+        val moduleId = db.learningModuleDao().insertModule(
+            LearningModule(pathId = pathId, title = "Arrays & Strings", orderIndex = 0)
+        )
+        val lessonId = db.lessonDao().insertLesson(
+            Lesson(
+                moduleId = moduleId,
+                title = "What Is an Array?",
+                content = "Contiguous memory, O(1) access by index",
+                diagramType = "array",
+                orderIndex = 0
+            )
+        )
+
+        val loadedModule = db.learningModuleDao().getModuleById(moduleId).first()
+        val loadedLesson = db.lessonDao().getLessonById(lessonId).first()
+
+        assertEquals("Arrays & Strings", loadedModule?.title)
+        assertEquals(pathId, loadedModule?.pathId)
+        assertEquals("What Is an Array?", loadedLesson?.title)
+        assertEquals(moduleId, loadedLesson?.moduleId)
+    }
+
+    @Test
+    fun insertAndReadConceptCheck() = runBlocking {
+        val pathId = db.learningPathDao().insertPath(
+            LearningPath(name = "DSA Foundations", description = "Basics first", orderIndex = 0)
+        )
+        val moduleId = db.learningModuleDao().insertModule(
+            LearningModule(pathId = pathId, title = "Arrays & Strings", orderIndex = 0)
+        )
+        val lessonId = db.lessonDao().insertLesson(
+            Lesson(
+                moduleId = moduleId,
+                title = "What Is an Array?",
+                content = "Contiguous memory",
+                orderIndex = 0
+            )
+        )
+
+        db.conceptCheckDao().insertCheck(
+            ConceptCheck(
+                lessonId = lessonId,
+                question = "Why is array access O(1)?",
+                optionsJson = "[\"a\",\"b\",\"c\",\"d\"]",
+                correctOptionIndex = 1,
+                explanation = "Address is computed directly",
+                orderIndex = 0
+            )
+        )
+
+        val checks = db.conceptCheckDao().getChecksForLesson(lessonId).first()
+        assertEquals(1, checks.size)
+        assertEquals(1, checks[0].correctOptionIndex)
+    }
+
+    @Test
+    fun learningProgressDefaultsLockedAndCanBeCompleted() = runBlocking {
+        val pathId = db.learningPathDao().insertPath(
+            LearningPath(name = "DSA Foundations", description = "Basics first", orderIndex = 0)
+        )
+        val moduleId = db.learningModuleDao().insertModule(
+            LearningModule(pathId = pathId, title = "Arrays & Strings", orderIndex = 0)
+        )
+        val lessonId = db.lessonDao().insertLesson(
+            Lesson(moduleId = moduleId, title = "What Is an Array?", content = "...", orderIndex = 0)
+        )
+
+        db.learningProgressDao().insertProgress(
+            LearningProgress(lessonId = lessonId, status = "locked")
+        )
+        val locked = db.learningProgressDao().getProgressForLesson(lessonId).first()
+        assertEquals("locked", locked?.status)
+
+        db.learningProgressDao().updateProgress(
+            locked!!.copy(status = "completed", conceptCheckPassed = true, completedAt = System.currentTimeMillis())
+        )
+        val completed = db.learningProgressDao().getProgressForLesson(lessonId).first()
+        assertEquals("completed", completed?.status)
+        assertTrue(completed?.conceptCheckPassed == true)
+    }
+
+    @Test
+    fun deletingLessonCascadesToConceptChecksAndProgress() = runBlocking {
+        val pathId = db.learningPathDao().insertPath(
+            LearningPath(name = "DSA Foundations", description = "Basics first", orderIndex = 0)
+        )
+        val moduleId = db.learningModuleDao().insertModule(
+            LearningModule(pathId = pathId, title = "Arrays & Strings", orderIndex = 0)
+        )
+        val lesson = Lesson(moduleId = moduleId, title = "What Is an Array?", content = "...", orderIndex = 0)
+        val lessonId = db.lessonDao().insertLesson(lesson)
+
+        db.conceptCheckDao().insertCheck(
+            ConceptCheck(
+                lessonId = lessonId, question = "Q", optionsJson = "[]",
+                correctOptionIndex = 0, explanation = "E", orderIndex = 0
+            )
+        )
+        db.learningProgressDao().insertProgress(LearningProgress(lessonId = lessonId, status = "locked"))
+
+        db.lessonDao().deleteLesson(lesson.copy(id = lessonId))
+
+        val checksAfterDelete = db.conceptCheckDao().getChecksForLesson(lessonId).first()
+        val progressAfterDelete = db.learningProgressDao().getProgressForLesson(lessonId).first()
+
+        assertTrue(checksAfterDelete.isEmpty())
+        assertEquals(null, progressAfterDelete)
     }
 }

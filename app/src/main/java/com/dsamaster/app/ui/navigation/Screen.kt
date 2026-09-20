@@ -6,11 +6,13 @@ import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.RecordVoiceOver
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.MenuBook
 import androidx.compose.material.icons.outlined.RecordVoiceOver
+import androidx.compose.material.icons.outlined.School
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -25,6 +27,13 @@ sealed class Screen(
         label = "Dashboard",
         selectedIcon = Icons.Filled.Home,
         unselectedIcon = Icons.Outlined.Home
+    )
+
+    object Learn : Screen(
+        route = "learning_path",
+        label = "Learn",
+        selectedIcon = Icons.Filled.School,
+        unselectedIcon = Icons.Outlined.School
     )
 
     object Topics : Screen(
@@ -64,7 +73,7 @@ sealed class Screen(
     )
 
     companion object {
-        val bottomNavItems = listOf(Dashboard, Topics, Problems, MockInterview, Settings)
+        val bottomNavItems = listOf(Dashboard, Learn, Topics, Problems, MockInterview, Settings)
     }
 }
 
@@ -87,4 +96,14 @@ object CodeEditorRoute {
     const val route = "code_editor/{problemId}?review={isReview}"
     fun createRoute(problemId: Long, isReview: Boolean = false) =
         "code_editor/$problemId?review=$isReview"
+}
+
+object LessonDetailRoute {
+    const val route = "lesson_detail/{lessonId}"
+    fun createRoute(lessonId: Long) = "lesson_detail/$lessonId"
+}
+
+object ConceptCheckRoute {
+    const val route = "concept_check/{lessonId}"
+    fun createRoute(lessonId: Long) = "concept_check/$lessonId"
 }

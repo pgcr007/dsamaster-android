@@ -8,7 +8,12 @@ import com.dsamaster.app.data.remote.ReviewRetryScheduler
 import com.dsamaster.app.data.remote.SyncApiClient
 import com.dsamaster.app.data.repository.CodeDraftRepository
 import com.dsamaster.app.data.repository.CodeExecutionRepository
+import com.dsamaster.app.data.repository.ConceptCheckRepository
 import com.dsamaster.app.data.repository.InterviewRepository
+import com.dsamaster.app.data.repository.LearningModuleRepository
+import com.dsamaster.app.data.repository.LearningPathRepository
+import com.dsamaster.app.data.repository.LearningProgressRepository
+import com.dsamaster.app.data.repository.LessonRepository
 import com.dsamaster.app.data.repository.MockInterviewSessionRepository
 import com.dsamaster.app.data.repository.NoteRepository
 import com.dsamaster.app.data.repository.PendingReviewRequestRepository
@@ -17,6 +22,7 @@ import com.dsamaster.app.data.repository.ReviewRepository
 import com.dsamaster.app.data.repository.StreakRepository
 import com.dsamaster.app.data.repository.TopicRepository
 import com.dsamaster.app.data.repository.UserProgressRepository
+import com.dsamaster.app.data.seed.LearningContentSeeder
 import com.dsamaster.app.data.seed.ProblemSeeder
 import com.dsamaster.app.data.seed.TopicSeeder
 import com.dsamaster.app.data.sync.SyncManager
@@ -63,6 +69,31 @@ class DsaMasterApplication : Application() {
         PendingReviewRequestRepository(database.pendingReviewRequestDao())
     }
 
+    // Phase 14 — Learning Module
+    val learningPathRepository: LearningPathRepository by lazy {
+        LearningPathRepository(database.learningPathDao())
+    }
+    val learningModuleRepository: LearningModuleRepository by lazy {
+        LearningModuleRepository(database.learningModuleDao())
+    }
+    val lessonRepository: LessonRepository by lazy {
+        LessonRepository(database.lessonDao())
+    }
+    val conceptCheckRepository: ConceptCheckRepository by lazy {
+        ConceptCheckRepository(database.conceptCheckDao())
+    }
+    val learningProgressRepository: LearningProgressRepository by lazy {
+        LearningProgressRepository(database.learningProgressDao())
+    }
+
+    val learningProgressManager: com.dsamaster.app.data.repository.LearningProgressManager by lazy {
+        com.dsamaster.app.data.repository.LearningProgressManager(
+            lessonRepository = lessonRepository,
+            learningModuleRepository = learningModuleRepository,
+            learningProgressRepository = learningProgressRepository
+        )
+    }
+
     /**
      * Binds userProgressRepository / streakRepository to whichever account
      * (Google or email/password) is currently signed in. Call
@@ -90,6 +121,14 @@ class DsaMasterApplication : Application() {
 
         val topicSeeder = TopicSeeder(this, topicRepository)
         val problemSeeder = ProblemSeeder(this, topicRepository, problemRepository)
+        val learningContentSeeder = LearningContentSeeder(
+            context = this,
+            learningPathRepository = learningPathRepository,
+            learningModuleRepository = learningModuleRepository,
+            lessonRepository = lessonRepository,
+            conceptCheckRepository = conceptCheckRepository,
+            learningProgressRepository = learningProgressRepository
+        )
         applicationScope.launch {
             try {
                 topicSeeder.seedIfNeeded()
@@ -100,6 +139,11 @@ class DsaMasterApplication : Application() {
                 problemSeeder.seedIfNeeded() // must run after topics, links by topic name
             } catch (e: Exception) {
                 Log.e("DsaMasterApp", "Problem seeding failed", e)
+            }
+            try {
+                learningContentSeeder.seedIfNeeded()
+            } catch (e: Exception) {
+                Log.e("DsaMasterApp", "Learning content seeding failed", e)
             }
         }
 

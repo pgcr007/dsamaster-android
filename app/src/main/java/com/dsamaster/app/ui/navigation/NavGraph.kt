@@ -8,8 +8,12 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.dsamaster.app.ui.components.LearningGate
 import com.dsamaster.app.ui.screens.CodeEditorScreen
+import com.dsamaster.app.ui.screens.ConceptCheckScreen
 import com.dsamaster.app.ui.screens.DashboardScreen
+import com.dsamaster.app.ui.screens.LearningPathScreen
+import com.dsamaster.app.ui.screens.LessonDetailScreen
 import com.dsamaster.app.ui.screens.MockInterviewScreen
 import com.dsamaster.app.ui.screens.ProblemDetailScreen
 import com.dsamaster.app.ui.screens.ProblemsScreen
@@ -25,6 +29,16 @@ fun NavGraph(
     innerPadding: androidx.compose.foundation.layout.PaddingValues,
     onLogout: () -> Unit
 ) {
+    val goToLearningPath: () -> Unit = {
+        navController.navigate(Screen.Learn.route) {
+            popUpTo(navController.graph.findStartDestination().id) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
     NavHost(
         navController = navController,
         startDestination = Screen.Dashboard.route,
@@ -59,21 +73,38 @@ fun NavGraph(
             )
         }
 
+        composable(Screen.Learn.route) {
+            LearningPathScreen(
+                onLessonClick = { lessonId ->
+                    navController.navigate(LessonDetailRoute.createRoute(lessonId))
+                }
+            )
+        }
+
         composable(Screen.Topics.route) {
             TopicsScreen(onTopicClick = { topicId ->
                 navController.navigate(TopicDetailRoute.createRoute(topicId))
             })
         }
 
+        // --- Everything below is gated behind the Foundations learning path ---
+
         composable(Screen.Problems.route) {
-            ProblemsScreen(
-                onProblemClick = { problemId ->
-                    navController.navigate(ProblemDetailRoute.createRoute(problemId))
-                }
-            )
+            LearningGate(onGoToLearningPath = goToLearningPath) {
+                ProblemsScreen(
+                    onProblemClick = { problemId ->
+                        navController.navigate(ProblemDetailRoute.createRoute(problemId))
+                    }
+                )
+            }
         }
 
-        composable(Screen.MockInterview.route) { MockInterviewScreen() }
+        composable(Screen.MockInterview.route) {
+            LearningGate(onGoToLearningPath = goToLearningPath) {
+                MockInterviewScreen()
+            }
+        }
+
         composable(Screen.Settings.route) { SettingsScreen() }
 
         composable(Screen.Profile.route) {
@@ -101,12 +132,14 @@ fun NavGraph(
             arguments = listOf(navArgument("topicId") { type = NavType.LongType })
         ) { backStackEntry ->
             val topicId = backStackEntry.arguments?.getLong("topicId") ?: 0L
-            ProblemsScreen(
-                initialTopicId = topicId,
-                onProblemClick = { problemId ->
-                    navController.navigate(ProblemDetailRoute.createRoute(problemId))
-                }
-            )
+            LearningGate(onGoToLearningPath = goToLearningPath) {
+                ProblemsScreen(
+                    initialTopicId = topicId,
+                    onProblemClick = { problemId ->
+                        navController.navigate(ProblemDetailRoute.createRoute(problemId))
+                    }
+                )
+            }
         }
 
         composable(
@@ -114,12 +147,14 @@ fun NavGraph(
             arguments = listOf(navArgument("problemId") { type = NavType.LongType })
         ) { backStackEntry ->
             val problemId = backStackEntry.arguments?.getLong("problemId") ?: 0L
-            ProblemDetailScreen(
-                problemId = problemId,
-                onOpenEditorClick = {
-                    navController.navigate(CodeEditorRoute.createRoute(problemId))
-                }
-            )
+            LearningGate(onGoToLearningPath = goToLearningPath) {
+                ProblemDetailScreen(
+                    problemId = problemId,
+                    onOpenEditorClick = {
+                        navController.navigate(CodeEditorRoute.createRoute(problemId))
+                    }
+                )
+            }
         }
 
         composable(
@@ -134,7 +169,34 @@ fun NavGraph(
         ) { backStackEntry ->
             val problemId = backStackEntry.arguments?.getLong("problemId") ?: 0L
             val isReview = backStackEntry.arguments?.getBoolean("isReview") ?: false
-            CodeEditorScreen(problemId = problemId, isReviewMode = isReview)
+            LearningGate(onGoToLearningPath = goToLearningPath) {
+                CodeEditorScreen(problemId = problemId, isReviewMode = isReview)
+            }
+        }
+
+        composable(
+            route = LessonDetailRoute.route,
+            arguments = listOf(navArgument("lessonId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val lessonId = backStackEntry.arguments?.getLong("lessonId") ?: 0L
+            LessonDetailScreen(
+                lessonId = lessonId,
+                onTakeConceptCheck = {
+                    navController.navigate(ConceptCheckRoute.createRoute(lessonId))
+                }
+            )
+        }
+
+        composable(
+            route = ConceptCheckRoute.route,
+            arguments = listOf(navArgument("lessonId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val lessonId = backStackEntry.arguments?.getLong("lessonId") ?: 0L
+            ConceptCheckScreen(
+                lessonId = lessonId,
+                onPassed = { navController.popBackStack() },
+                onBack = { navController.popBackStack() }
+            )
         }
     }
 }
